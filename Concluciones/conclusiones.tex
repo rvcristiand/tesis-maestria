@@ -1,0 +1,39 @@
+\chapter{Conclusiones y recomendaciones}
+En los capítulos anteriores se expuso el desarrollo y la correspondiente aplicación del programa de computador \textit{StressUN}, cuya finalidad es resolver modelos de estructuras tridimensionales de elementos rectos sometidos a cargas estáticas, es decir, calcular:
+\begin{inparaenum} [$ (1) $]
+    \item los desplazamientos de los nodos,
+    \item las reacciones en los apoyos y 
+    \item las fuerzas y los desplazamientos internos de los elementos rectos
+\end{inparaenum}
+de estructuras tridimensionales sometidas a cargas estáticas.\\
+
+\textit{StressUN} se divide en tres partes: el \textit{preprocesador}, el \textit{procesador} y el \textit{posprocesador}. El procesador se encarga de solucionar el modelo de la estructura,  mientras que el preprocesador y el posprocesador, que, en su conjunto, consisten en una interfaz gráfica y en un ambiente virtual tridimensional, le permiten al usuario ingresar la información del modelo de manera interactiva, visualizarla y acceder a los resultados del análisis. \\
+
+Durante el desarrollo de \textit{StressUN} se creó la librería \textit{pyFEM}, la cual provee las herramientas necesarias para resolver modelos de estructuras objeto de este trabajo. De manera que
+el usuario también puede estudiar dichas estructuras mediante los diferentes comandos de la  librería, ya sea generando un archivo de instrucciones en el lenguaje de programación \textit{python}, el cual se puede modificar y ejecutar cuantas veces se desee, o haciendo uso del modo interactivo de dicho lenguaje de programación, en el cual cada línea de comandos se ejecuta después de oprimir la tecla \textit{retorno}. \\
+
+Así mismo, el usuario puede emplear sus propias rutinas de programación para resolver modelos de estructuras en conjunto con el preprocesador y el posprocesador de \textit{StressUN}, de tal manera que tiene una herramienta para visualizar los datos de entrada y de salida del modelo para su programa de computador. \\
+
+Debido a la facilidad con la que cuenta el usuario para ingresar la información del modelo de su estructura (a través de la interfaz gráfica interactiva o mediante líneas de instrucciones de \textit{python}), sumada a las diferentes alternativas con las que puede obtener los resultados del análisis (de manera visual en el entorno tridimensional, a través de tablas con formato predefinido, o manipualandolos por su cuenta mediante instrucciones en \textit{python}), las herramientas de computación desarrolladas en este trabajo son del agrado de diferentes tipos de usuarios. \\
+
+Para obtener los resultados de la solución de un modelo de una estructura tridimensional de elementos rectos sometidos a cargas estáticas, el usuario debe sortear una serie de etapas, indiferentemente si decide usar el programa de computador \textit{StressUN} o la librería \textit{pyFEM}. Dichas etapas consisten en describir el modelo de la estructura, la que se conoce como \textit{preproceso}. Después, ejecutar el análisis del mismo, etapa que se conoce como \textit{proceso}, en donde se soluciona el modelo, siempre y cuando no sea inestable. Una vez se obtienen los resultados, el usuario puede acceder a éstos, etapa que se conoce como \textit{posproceso}, de manera que él pueda realizar su conclusiones, donde puede optar por realizar cambios al modelo para reanalizarlo o dar por terminado el análisis. \\
+
+Los pasos descritos en el párrafo anterior se realizaron para diferentes tipos de estructuras, las cuales se presentan en algunos libros de la literatura clásica o fueron planteadas por el autor para comparar los resultados del programa \textit{StressUN} con programas comerciales. Los resultados de dichas estructuras se presentaron en el capítulo \textit{\nameref{chap:analisis_resultados}}, con lo cual se concluye que los resultados presentados por el programa \textit{StressUN} son prácticamente iguales a las respuestas presentadas en los textos y similares a la respuesta obtenida con los programas comerciales. Así mismo, la respuesta del programa objeto de esta tesis se obtuvo en un tiempo menor al tiempo utilizado por los programas comerciales. \\
+
+En la manufactura del programa de computador \textit{StressUN} se usaron varias herramientas, tanto informáticas como matemáticas, que no son propias de la literatura clásica, como son la \textit{programación orientada a objetos} y los \textit{cuaterniones}, las cuales permiten que \textit{StressUN} sea más versátil que otras implementaciones del análisis matricial. \\
+
+El paradigma de programación orientada a objetos, a diferencia de la programación de computadores clásica, más conocida como \textit{programación estructurada}, permite crear \textit{multiples instancias}, \textit{personalizar vía herencia} y \textit{sobrecarga de operadores}, herramientas que se usaron a lo largo de todo el código del programa de computador. \\
+
+Esto permitió que el usuario creara nuevos \textit{objetos}, que se reusara código para evitar su duplicidad y objetos con comportamientos similares a objetos proprios de \textit{python}. Lo dicho anteriormente se comprueba al darse cuenta que se creaban nuevos objetos al ejecutar líneas de código como \textit{structure.nodes.add('0', 0, 0, 0)}, que se reusaba código al crear la \textit{clase} \textit{Frame} al utilizar como base la \textit{clase} \textit{Truss}, o que se podia indexar la lista de objetos mediante la instrucción \textit{structure.frames['0']}, por citar algunos ejemplos.  \\
+
+Los cuaterniones son una extensión de los números reales, similar a la de los números complejos. Entre las aplicaciones de los cuaterniones se encuentra la representación de rotaciones en el espacio, por lo cual se usan a menudo en \textit{gráficos por computador} para representar la orientación de un objeto en un espacio tridimensional. Y aun cuando existen otros elementos matemáticos que cumplen con el mismo objetivo, los cuaterniones cuentan con la ventaja que para una misma rotación se tiene una sola representación, a diferencia de los \textit{ángulos de Euler}, y son más compactos, comparado con las matrices. \\
+
+Aunque dichas características son de interés, tal vez la más importante sea la facilidad con la cual se puede representar las rotaciones en el espacio, ya que, a consideración del autor, ésta ha sido la gran limitante de otros trabajos a la hora de tratar problemas tridimensionales, puesto que los métodos clásicos son bastante confusos, tal como se presenta en \cite{escamilla1995microcomputadores}. \\
+
+Lo anteriormente dicho combinado con un sistema de versiones como \textit{git}, que permite llevar el control del desarrollo del programa, permite que este proyecto no se quede en las líneas de esta trabajo sino que futuras generaciones de ingenieros estructurales e ingenieros de computación gráfica continúen con este proyecto. \\
+
+Los aportes inmediatos deberían dirigirse al cálculo de las fuerzas debidas a los efectos sísmicos y al cálculo de los efectos de segundo orden, de manera que este programa de computador se convierta en una herramienta en las oficinas de diseño especializadas en el diseño de edificios. Así mismo, se debería implementar modelos predefinidos de estructuras, para que el usuario, a partir de la personalización de estos, pueda analizar estructuras típicas invirtiendo menor tiempo en la descripción de la misma. \\
+
+A futuro se debe pensar en implementar nuevos elementos finitos, análisis de estructuras con aumentos de carga, análisis de señales de sismos, módulos de diseño que implementen los diferentes códigos nacionales, generador de reportes, entre otros. \\
+
+Finalmente, los ingenieros de computación gráfica deberían realizar sus aportes orientados a la mejor presentación de los datos, a la manipulación de los objetos, todo esto encaminado a hacer la experiencia del usuario más agradable. \\

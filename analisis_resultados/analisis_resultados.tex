@@ -1,0 +1,180 @@
+\chapter{Análisis de resultados}
+\label{chap:analisis_resultados}
+
+\section{Generalidades de los programas}
+
+\subsection{Lenguaje de programación}
+
+La librería Panda3D permitió escribir la interfaz y el programa de análisis en el mismo lenguaje de programación: \texttt{python}. El uso de un mismo lenguaje de programación para todas las partes de los programas permite un desarrollo y evolución del mismo con mayor fluidez y orden. La colaboración de otros desarrolladores será más controlada y fácil de implementar si se mantiene dicho lenguaje y no se mezclan otros lenguajes y paradigmas. 
+
+El lenguaje de programación \texttt{python} es una herramienta ...
+
+\subsection{Portabilidad}
+
+Los dos programas implementados (\textit{StressUN} y la librería \textit{pyFEM}) se probaron constantemente en las plataformas Windows y Linux. Al finalizar, se hizo una prueba en un PC con sistema operativo MacOS. Las pruebas realizadas en los tres sistemas operativos consistieron en resolver los ejemplos que se presentan con detalle en la sección \ref{libreriaPyFem}. A continuación se presentan algunos aspectos que se consideraron para comparar el funcionamiento de los programas en los sistemas operativos seleccionados.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|p{6cm}}
+        \hline 
+        SO & Librerías \\
+        \hline 
+        Windows & Panda3D, numpy, scipy \\
+        MacOS & Panda3D, numpy, scipy \\
+        Linux & Panda3D, numpy, scipy \\
+        \hline 
+    \end{tabular}
+    \caption{Librerías necesarias}
+    \label{tab:my_label}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|ccc}
+        \hline 
+        Ejemplo & \multicolumn{3}{c}{Tiempo ejecución} \\
+         & Windows & MacOS & Linux \\ 
+         \hline 
+        Cercha01 & 5.4 & 5.3 & 5.6 \\ 
+        Cercha02 & 5.4 & 5.3 & 5.6 \\ 
+        Cercha03 & 5.4 & 5.3 & 5.6 \\
+        Portico01 & 5.4 & 5.3 & 5.6 \\
+        Portico02 & 5.4 & 5.3 & 5.6 \\
+        Portico03 & 5.4 & 5.3 & 5.6 \\
+        \hline 
+    \end{tabular}
+    \caption{Tiempo de ejecución de la librería \textit{pyFEM} en diferentes sistemas operativos}
+    \label{tab:my_label}
+\end{table}
+
+Los tiempos de ejecución del programa son similares debido a que \texttt{python} es un lenguaje interpretado. Se ejecuta sobre una máquina virtual dentro del sistema operativo, y por eso su velocidad de procesamiento no depende tanto del procesador del PC, sino de la versión de \texttt{python}, de sus librerías y del grado de optimización con el que se haya escrito el programa.
+
+
+% ------------------------------------------------------------------------------
+\section{Interfaz gráfica \textit{StressUN}}
+
+La iterfaz gráfica \textit{StressUN} ha sido diseñada para cubrir todas las necesidades de estudiantes, profesores y profesionales en el campo del análisis estructural: modelado geométrico, definición de propiedades, definición de cargas y casos de carga, definición de restricciones, transferencia de datos al software de análisis, visualización del modelo de análisis y visualización de resultados numéricos.
+
+\subsection{Generalidades de la interfaz}
+
+\subsubsection{Controles del teclado}
+
+\subsubsection{Interacción con el \textit{mouse}}
+
+
+\subsection{Preproceso}
+
+\subsubsection{Definición de materiales y propiedades geométricas}
+
+\subsubsection{Definición y visualización de nodos y elementos}
+
+\subsubsection{Definición y visualización de restricciones}
+
+\subsubsection{Definición y visualización de cargas y casos de carga}
+
+
+\subsection{Posproceso (resultados)}
+
+\subsubsection{Visualización de desplazamientos}
+
+\subsubsection{Visualización de reacciones}
+
+\subsubsection{Exportación de resultados en tablas}
+
+\subsubsection{Visualización de acciones internas: axial, cortante, momento}
+
+\subsubsection{Visualización simultánea de diferentes resultados}
+
+\subsubsection{Visualización de variables y parámetros del proceso de análisis}
+
+% ------------------------------------------------------------------------------
+\section{Funcionamiento de la librería \textit{pyFEM}} \label{sec:libreriaPyFem}
+
+Se verificó el correcto funcionamiento de la librería de análisis estructural \textit{pyFEM}, mediante la comparación de los resultados obtenidos en este trabajo y por otros autores. A continuación se evidencia que las respuestas obtenidas son prácticamente iguales a las presentados en los ejemplos resueltos en la literatura consultada. En algunos casos, se obtienen respuestas más exactas que las que reportan los autores principales de los ejemplos resueltos. A continuación se presenta una tabla indicando el error obtenido en cada ejemplo.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|ccc|ccc}
+        \hline 
+        Nodo & $\varepsilon (d_x)$ & $\varepsilon (d_y)$ & $\varepsilon (d_z)$ & $\varepsilon (R_x)$ & $\varepsilon (R_y)$ & $\varepsilon (R_z)$ \\
+        \hline 
+        1 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        2 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        3 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        4 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        \vdots & & & & & & \\
+        \hline 
+    \end{tabular}
+    \caption{Errores Cercha01}
+    \label{tab:errorCercha01}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|ccc|ccc}
+        \hline 
+        Nodo & $\varepsilon (d_x)$ & $\varepsilon (d_y)$ & $\varepsilon (d_z)$ & $\varepsilon (R_x)$ & $\varepsilon (R_y)$ & $\varepsilon (R_z)$ \\
+        \hline 
+        1 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        2 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        3 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        4 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        \vdots & & & & & & \\
+        \hline 
+    \end{tabular}
+    \caption{Errores Cercha02}
+    \label{tab:errorCercha02}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|ccc|ccc}
+        \hline 
+        Nodo & $\varepsilon (d_x)$ & $\varepsilon (d_y)$ & $\varepsilon (d_z)$ & $\varepsilon (R_x)$ & $\varepsilon (R_y)$ & $\varepsilon (R_z)$ \\
+        \hline 
+        1 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        2 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        3 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        4 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        \vdots & & & & & & \\
+        \hline 
+    \end{tabular}
+    \caption{Errores Portico01}
+    \label{tab:errorPortico01}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|ccc|ccc}
+        \hline 
+        Nodo & $\varepsilon (d_x)$ & $\varepsilon (d_y)$ & $\varepsilon (d_z)$ & $\varepsilon (R_x)$ & $\varepsilon (R_y)$ & $\varepsilon (R_z)$ \\
+        \hline 
+        1 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        2 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        3 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        4 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        \vdots & & & & & & \\
+        \hline 
+    \end{tabular}
+    \caption{Errores Portico02}
+    \label{tab:errorPortico02}
+\end{table}
+
+La tabla \ref{tab:errorPromedio} muestra los errores promedio obtenidos para cada ejemplo resuelto. Se puede ver que los resultados obtenidos con la librería implementada no tienen errores significativos. Vale la pena aclarar que algunos de esos errores se deben a que los resultados que presentan los autores principales de la literatura consultada no son exactos, mientras que los obtenidos con \textit{pyFEM} tienen mayor precisión.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{c|ccc|ccc}
+        \hline 
+        Ejemplo & $\varepsilon (d_x)$ & $\varepsilon (d_y)$ & $\varepsilon (d_z)$ & $\varepsilon (R_x)$ & $\varepsilon (R_y)$ & $\varepsilon (R_z)$ \\
+        \hline 
+        Cercha01 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        Cercha02 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        Portico01 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        Portico02 & 0.01\% & 0.012\% & 0.003\% & 0.0051\% & 0.024\% & 0.102\% \\
+        \vdots & & & & & & \\
+        \hline 
+    \end{tabular}
+    \caption{Errores promedio}
+    \label{tab:errorPromedio}
+\end{table}
