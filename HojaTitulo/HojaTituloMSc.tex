@@ -6,7 +6,7 @@
 \epsfig{file=HojaTitulo/EscudoUN,scale=1}%
 \end{figure}
 \thispagestyle{empty} \vspace*{2.0cm} \textbf{\huge
-Programa de computador para resolver modelos de estructuras tridimensionales de elementos rectos}\\[6.0cm]
+Desarrollo de un programa de computador para el análisis de estructuras en tres dimensiones tipo pórtico sometidas a cargas estáticas}\\[5.0cm]
 \Large\textbf{Cristian Danilo Ramirez Vargas}\\[5.0cm]
 \small Universidad Nacional de Colombia\\
 Facultad de Ingeniería, Departamento de Ingeniería Civil y Agrícola\\
@@ -19,7 +19,7 @@ Bogotá D. C., Colombia\\
 \newpage
 \begin{center}
 \thispagestyle{empty} \vspace*{0cm} \textbf{\huge
-Programa de computador para resolver modelos de estructuras tridimensionales de elementos rectos}\\[2.0cm]
+Desarrollo de un programa de computador para el análisis de estructuras en tres dimensiones tipo pórtico sometidas a cargas estáticas}\\[1.0cm]
 \Large\textbf{Cristian Danilo Ramirez Vargas}\\[3.0cm]
 \small Tesis presentada como requisito parcial para optar al
 t\'{\i}tulo de:\\
@@ -97,41 +97,43 @@ Bogotá D. C., Colombia\\
 
 No habría podido hacer este trabajo sin la dirección del profesor Martín Estrada. Su conocimiento del mundo de la programación me ayudó en momentos decisivos durante el desarrollo del código. Gracias a él trabajé con la librería \emph{three.js}. No sé como hacer para agradecerle por su paciencia.\\
 
-Este trabajo también se debe al curso \emph{Computación Visual} del profesor Jean Pierre Charalambos. Su descripción del \emph{grafo} y como trabajar con la \emph{escena} fue lo que me permitió hacer \emph{FEM.js}. Y, por si esto no fuera suficiente, apliqué el concepto de \emph{cuaternión} en el problema de la rotación de los ejes de referencia tiempo después de haberlo estudiado en una de sus clases, lo que me permitió implementar el método de análisis matricial de manera innovadora. Gracias a su curso ahora creo entender muchas cosas que de jovén siempre quise saber.\\
+Este trabajo también se debe al curso \emph{Computación Visual} del profesor Jean Pierre Charalambos. Su descripción del \emph{grafo} y como trabajar con la \emph{escena} fue lo que me permitió hacer \emph{FEM.js}.\\
 
-También quiero agradecer a la profesora Maritzabel Molina ya que mi entendimiento del método de análisis matricial proviene de su curso \emph{análisis estructural avanzado}. A ella nos debemos muchos ingenieros estructurales.\\
+Adicionalmente, apliqué el concepto de \emph{cuaternión} en el problema de la rotación de los ejes de referencia tiempo después de haberlo estudiado en una de sus clases, lo que me permitió implementar el método de análisis matricial de manera innovadora. Gracias a su curso ahora creo entender muchas cosas que de joven siempre quise saber.\\
 
-Así mismo, quiero agradecer al profesor Fernando Ramírez, de la Universidad de los Andes, por enseñarme el \emph{método de los elementos finitos}, y al profesor Dorian Linero por enseñarme a implementarlo. A ellos gracias por haberme permitido afianzarme con el método.\\
+También quiero agradecer a la profesora Maritzabel Molina ya que mi entendimiento del método de análisis matricial proviene de su curso \emph{análisis estructural básico}. A ella nos debemos muchos ingenieros estructurales.\\
 
-También quiero agradecer la ayuda de la Coordinación Curricular del Posgrado en Estructuras, especialmente a la profesora Caori Takeuchi quien no tuvo reparos en dejarme ver el curso Computación Visual. Ese día comenzó la verdadera tesis.\\
+Así mismo, quiero agradecer al profesor Fernando Ramírez, de la Universidad de los Andes, por enseñarme el \emph{método de los elementos finitos}, y al profesor Dorian Linero por enseñarme a implementarlo. A ellos gracias por haberme permitido ganar confianza con el método.\\
+
+Finalmente, quiero agradecer la ayuda de la Coordinación Curricular del Posgrado en Estructuras, especialmente a la profesora Caori Takeuchi quien no tuvo reparos en dejarme ver el curso Computación Visual. Ese día comenzó la verdadera tesis.\\
  
-Y en general, y muy especialmente, a cada uno de los profesores con los que tuve la oportunidad de aprender. A todos ustedes, mil y mil gracias.
+
 
 \newpage{\pagestyle{empty}\cleardoublepage}
 
 \newpage
-% \textbf{\LARGE Resumen}
-% \addcontentsline{toc}{chapter}{\numberline{}Resumen}\\\\
-% El resumen es una presentaci\'{o}n abreviada y precisa (la NTC 1486 de 2008 recomienda revisar la norma ISO 214 de 1976). Se debe usar una extensi\'{o}n m\'{a}xima de 12 renglones. Se recomienda que este resumen sea anal\'{\i}tico, es decir, que sea completo, con informaci\'{o}n cuantitativa y cualitativa, generalmente incluyendo los siguientes aspectos: objetivos, dise\~{n}o, lugar y circunstancias, pacientes (u objetivo del estudio), intervenci\'{o}n, mediciones y principales resultados, y conclusiones. Al final del resumen se deben usar palabras claves tomadas del texto (m\'{\i}nimo 3 y m\'{a}ximo 7 palabras), las cuales permiten la recuperaci\'{o}n de la informaci\'{o}n.\\
+\textbf{\LARGE Resumen}
+\addcontentsline{toc}{chapter}{\numberline{}Resumen}\\\\
+El resumen es una presentaci\'{o}n abreviada y precisa (la NTC 1486 de 2008 recomienda revisar la norma ISO 214 de 1976). Se debe usar una extensi\'{o}n m\'{a}xima de 12 renglones. Se recomienda que este resumen sea anal\'{\i}tico, es decir, que sea completo, con informaci\'{o}n cuantitativa y cualitativa, generalmente incluyendo los siguientes aspectos: objetivos, dise\~{n}o, lugar y circunstancias, pacientes (u objetivo del estudio), intervenci\'{o}n, mediciones y principales resultados, y conclusiones. Al final del resumen se deben usar palabras claves tomadas del texto (m\'{\i}nimo 3 y m\'{a}ximo 7 palabras), las cuales permiten la recuperaci\'{o}n de la informaci\'{o}n.\\
 
-% \textbf{\small Palabras clave: (m\'{a}ximo 10 palabras, preferiblemente seleccionadas de las listas internacionales que permitan el indizado cruzado)}.\\
+\textbf{\small Palabras clave: (m\'{a}ximo 10 palabras, preferiblemente seleccionadas de las listas internacionales que permitan el indizado cruzado)}.\\
 
-% A continuaci\'{o}n se presentan algunos ejemplos de tesauros que se pueden consultar para asignar las palabras clave, seg\'{u}n el \'{a}rea tem\'{a}tica:\\
+A continuaci\'{o}n se presentan algunos ejemplos de tesauros que se pueden consultar para asignar las palabras clave, seg\'{u}n el \'{a}rea tem\'{a}tica:\\
 
-% \textbf{Artes}: AAT: Art y Architecture Thesaurus.
+\textbf{Artes}: AAT: Art y Architecture Thesaurus.
 
-% \textbf{Ciencias agropecuarias}: 1) Agrovoc: Multilingual Agricultural Thesaurus - F.A.O. y 2)GEMET: General Multilingual Environmental Thesaurus.
+\textbf{Ciencias agropecuarias}: 1) Agrovoc: Multilingual Agricultural Thesaurus - F.A.O. y 2)GEMET: General Multilingual Environmental Thesaurus.
 
-% \textbf{Ciencias sociales y humanas}: 1) Tesauro de la UNESCO y 2) Population Multilingual Thesaurus.
+\textbf{Ciencias sociales y humanas}: 1) Tesauro de la UNESCO y 2) Population Multilingual Thesaurus.
 
-% \textbf{Ciencia y tecnolog\'{\i}a}: 1) Astronomy Thesaurus Index. 2) Life Sciences Thesaurus, 3) Subject Vocabulary, Chemical Abstracts Service y 4) InterWATER: Tesauro de IRC - Centro Internacional de Agua Potable y Saneamiento.
+\textbf{Ciencia y tecnolog\'{\i}a}: 1) Astronomy Thesaurus Index. 2) Life Sciences Thesaurus, 3) Subject Vocabulary, Chemical Abstracts Service y 4) InterWATER: Tesauro de IRC - Centro Internacional de Agua Potable y Saneamiento.
 
-% \textbf{Tecnolog\'{\i}as y ciencias m\'{e}dicas}: 1) MeSH: Medical Subject Headings (National Library of Medicine's USA) y 2) DECS: Descriptores en ciencias de la Salud (Biblioteca Regional de Medicina BIREME-OPS).
+\textbf{Tecnolog\'{\i}as y ciencias m\'{e}dicas}: 1) MeSH: Medical Subject Headings (National Library of Medicine's USA) y 2) DECS: Descriptores en ciencias de la Salud (Biblioteca Regional de Medicina BIREME-OPS).
 
-% \textbf{Multidisciplinarias}: 1) LEMB - Listas de Encabezamientos de Materia y 2) LCSH- Library of Congress Subject Headings.\\
+\textbf{Multidisciplinarias}: 1) LEMB - Listas de Encabezamientos de Materia y 2) LCSH- Library of Congress Subject Headings.\\
 
-% Tambi\'{e}n se pueden encontrar listas de temas y palabras claves, consultando las distintas bases de datos disponibles a trav\'{e}s del Portal del Sistema Nacional de Bibliotecas\footnote{ver: www.sinab.unal.edu.co}, en la secci\'{o}n "Recursos bibliogr\'{a}ficos" opci\'{o}n "Bases de datos".\\
+Tambi\'{e}n se pueden encontrar listas de temas y palabras claves, consultando las distintas bases de datos disponibles a trav\'{e}s del Portal del Sistema Nacional de Bibliotecas\footnote{ver: www.sinab.unal.edu.co}, en la secci\'{o}n "Recursos bibliogr\'{a}ficos" opci\'{o}n "Bases de datos".\\
 
-% \textbf{\LARGE Abstract}\\\\
-% Es el mismo resumen pero traducido al ingl\'{e}s. Se debe usar una extensi\'{o}n m\'{a}xima de 12 renglones. Al final del Abstract se deben traducir las anteriores palabras claves tomadas del texto (m\'{\i}nimo 3 y m\'{a}ximo 7 palabras), llamadas keywords. Es posible incluir el resumen en otro idioma diferente al espa\~{n}ol o al ingl\'{e}s, si se considera como importante dentro del tema tratado en la investigaci\'{o}n, por ejemplo: un trabajo dedicado a problemas ling\"{u}\'{\i}sticos del mandar\'{\i}n seguramente estar\'{\i}a mejor con un resumen en mandar\'{\i}n.\\[2.0cm]
-% \textbf{\small Keywords: palabras clave en ingl\'{e}s(m\'{a}ximo 10 palabras, preferiblemente seleccionadas de las listas internacionales que permitan el indizado cruzado)}\\
+\textbf{\LARGE Abstract}\\\\
+Es el mismo resumen pero traducido al ingl\'{e}s. Se debe usar una extensi\'{o}n m\'{a}xima de 12 renglones. Al final del Abstract se deben traducir las anteriores palabras claves tomadas del texto (m\'{\i}nimo 3 y m\'{a}ximo 7 palabras), llamadas keywords. Es posible incluir el resumen en otro idioma diferente al espa\~{n}ol o al ingl\'{e}s, si se considera como importante dentro del tema tratado en la investigaci\'{o}n, por ejemplo: un trabajo dedicado a problemas ling\"{u}\'{\i}sticos del mandar\'{\i}n seguramente estar\'{\i}a mejor con un resumen en mandar\'{\i}n.\\[2.0cm]
+\textbf{\small Keywords: palabras clave en ingl\'{e}s(m\'{a}ximo 10 palabras, preferiblemente seleccionadas de las listas internacionales que permitan el indizado cruzado)}\\
