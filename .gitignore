@@ -1,0 +1,15 @@
+## Core latex/pdflatex auxiliary files:
+*.aux
+*.log
+*.fls
+
+## Bibliography auxiliary files:
+*.bbl
+*.blg
+
+## Build tool auxiliary files:
+*.fdb_latexmk
+*.synctex.gz
+
+## tcolorbox
+*.listing
