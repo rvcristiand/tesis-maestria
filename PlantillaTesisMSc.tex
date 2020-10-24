@@ -21,7 +21,7 @@
 
 % Me
 \usepackage{tikz}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{siunitx}
 \usepackage{stanli}
 
@@ -62,7 +62,7 @@
 
 % Formato de definiciones y ejemplos 
 \usepackage[listingsutf8,breakable,many]{tcolorbox}
-\tcbuselibrary{minted}
+% \tcbuselibrary{minted}
 
 % Caja sin título
 \newtcolorbox{cajasimple}{
@@ -175,7 +175,7 @@
 
 \begin{document}
 \pagenumbering{roman}
-\include{HojaTitulo/HojaTituloMSc}
+% \include{HojaTitulo/HojaTituloMSc}
 
 \renewcommand{\tablename}{\textbf{Tabla}}
 \renewcommand{\figurename}{\textbf{Figura}}
@@ -183,29 +183,28 @@
 \renewcommand{\listfigurename}{Lista de Figuras}
 \renewcommand{\contentsname}{Contenido}
 
-
 %\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
-\tableofcontents
+% \tableofcontents
 
 \cleardoublepage
 % \addcontentsline{toc}{chapter}{Lista de figuras} % para que aparezca en el indice de contenidos
-\listoffigures % indice de figuras
+% \listoffigures % indice de figuras
 
 \cleardoublepage
 % \addcontentsline{toc}{chapter}{Lista de tablas} % para que aparezca en el indice de contenidos
-\listoftables % indice de tablas
+% \listoftables % indice de tablas
 
 \cleardoublepage
-\include{Tab_Simbolos/TabSimbolosMSc}
+% \include{Tab_Simbolos/TabSimbolosMSc}
 %\include{Resumen}%\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
 \pagenumbering{arabic}
 
 % \include{MarcoTeorico/MarcoTeorico}
 \include{introduction/introduction}
-\include{metodologia/Metodologia}
-\include{ejemplos_aplicacion/ejemplos_aplicacion}
-\include{analisis_resultados/analisis_resultados}
-\include{Concluciones/conclusiones}
+% \include{metodologia/Metodologia}
+% \include{ejemplos_aplicacion/ejemplos_aplicacion}
+% \include{analisis_resultados/analisis_resultados}
+% \include{Concluciones/conclusiones}
 
 \addcontentsline{toc}{chapter}{\numberline{}Bibliograf\'{\i}a}
 \bibliographystyle{apalike}
