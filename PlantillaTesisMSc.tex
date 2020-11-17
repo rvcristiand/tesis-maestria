@@ -28,6 +28,13 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{breakcites}
+
+\usepackage[style=apa,citestyle=apa]{biblatex}
+\DefineBibliographyStrings{spanish}{%
+  andothers = {et al}
+  }
+\addbibresource{BibliMSc.bib}
+
 % \usepackage{titlesec}
 
 \usepackage{tikz-imagelabels}
@@ -213,6 +220,5 @@
 % \include{Concluciones/conclusiones}
 
 \addcontentsline{toc}{chapter}{\numberline{}Bibliograf\'{\i}a}
-\bibliographystyle{apalike}
-\bibliography{BibliMSc}
+\printbibliography
 \end{document}

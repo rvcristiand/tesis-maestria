@@ -9,7 +9,9 @@
 
 ## Bibliography auxiliary files:
 *.bbl
+*.bcf
 *.blg
+*.run.xml
 
 ## Build tool auxiliary files:
 *.fdb_latexmk
