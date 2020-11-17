@@ -1,0 +1,121 @@
+\chapter{pyFEM}
+\label{cha:pyFEM}
+
+En la figura \ref{fig:space-frame} se presenta un elemento \emph{i} tipo \emph{pórtico} con sus nodos \emph{j} y \emph{k} empotrados. El sistema de coordenadas locales del elemento tiene como origen el nodo \emph{j}. El eje $ x $ coincide con el eje centroidal del elemento y es positivo en el sentido del nodo \emph{j} al nodo \emph{k}. Los ejes $ y $ y $ z $ son los ejes principales del elemento, de manera que los planos $ xy $ y $ zx $ son los planos principales de flexión. Se asume que el centro de cortante y el centroide del elemento coinciden de tal manera que la flexión y la torsión se presentan una independiente de la otra. Los grados de libertad se numeran del 1 al 12, empezando por las translaciones y las rotaciones del nodo \emph{j}, tomados en el orden $ x $, $ y $, $ z $ respectivamente, y después con las  translaciones y las rotaciones del nodo \emph{k} de forma similar.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[coords]
+    % points
+    \dpoint{a}{0}{0}{0};
+    \dpoint{b}{4}{0}{0};
+
+    \dpoint{alabel}{0}{0}{0.25};
+    \dpoint{blabel}{4}{0}{0.25};
+
+    \dpoint{beamlabel}{2}{0}{0.25};
+
+    \dpoint{jux}{-1}{0}{0};
+    \dpoint{juy}{0}{-1.5}{0.25};   
+    \dpoint{juz}{0}{0}{-1.25};
+
+    \dpoint{jrx}{-2}{0}{0};
+    \dpoint{jry}{0}{-2.75}{0.25};   
+    \dpoint{jrz}{0}{0}{-2.5};
+
+    \dpoint{kux}{4.5}{0}{0};
+    \dpoint{kuy}{4}{-1.5}{0.25};   
+    \dpoint{kuz}{4}{0}{-1.25};
+
+    \dpoint{krx}{5.25}{0}{0};
+    \dpoint{kry}{4}{-2.75}{0.35};   
+    \dpoint{krz}{4}{0}{-2.5};   
+   
+    % beams
+    \dbeam{1}{a}{b};
+
+    \dnotation{6}{beamlabel}{\emph{i}};
+
+    % supports
+    \dsupport{2}{a}[yz];
+    \dsupport{2}{b}[yz];
+
+    \dnotation{1}{alabel}{\emph{j}};
+    \dnotation{1}{blabel}{\emph{k}};
+    % restrains
+    % j
+    \dload{1}{a}[270][0][1];
+    \dload{1}{a}[270][90][1][0.5];   
+    \dload{1}{a}[180][180][1][0.5];
+
+    \dload{3}{a}[270][0][1][1.25];
+    \dload{3}{a}[270][90][1][1.75];   
+    \dload{3}{a}[180][180][1][1.75];
+
+    \dnotation{1}{jux}{1};
+    \dnotation{1}{juy}{2};
+    \dnotation{1}{juz}{3};
+
+    \dnotation{1}{jrx}{4};
+    \dnotation{1}{jry}{5};
+    \dnotation{1}{jrz}{6};   
+    
+    % k
+    \dload{2}{b}[90][0][1];
+    \dload{1}{b}[270][90][1][0.5];   
+    \dload{1}{b}[180][180][1][0.5];
+
+    \dload{4}{b}[90][0][1][1.25];
+    \dload{3}{b}[270][90][1][1.75];   
+    \dload{3}{b}[180][180][1][1.75];
+
+    \dnotation{1}{kux}{7};
+    \dnotation{1}{kuy}{8};
+    \dnotation{1}{kuz}{9};
+
+    \dnotation{1}{krx}{10};
+    \dnotation{1}{kry}{11};
+    \dnotation{1}{krz}{12};
+    
+    % axes
+    \dscaling{3}{1};
+    \daxis{1}{0, 0, 0};
+  \end{tikzpicture}
+  \caption{Elemento tipo pórtico en coordenadas locales.}
+  \label{fig:space-frame}
+\end{figure}
+
+Según \cite{weaver1990matrixanalysis}, (\ref{eq:matriz-rigidez-elemento-portico}) es la matrix de rigidez del elemento tipo pórtico en coordenadas locales, donde:
+\begin{itemize}
+\item $ E $ módulo de elasticidad del material,
+\item $ G $ módulo de elasticidad a cortante del material,
+\item $ L $ la longitud del elemento,
+\item $ A_x $ es el área tranversal de la sección,
+\item $ I_x $ es la constante de torsión de la sección,
+\item $ I_y $ es el momento principal de inercia de la sección con respecto al eje $ y $,
+\item $ I_z $ es el momento principal de inercia de la sección con respecto al eje $ z $,
+\end{itemize}
+
+\begin{equation}
+  \begin{bNiceArray}{CCCCCCCCCCCC}[small,
+    first-row,
+    first-col,
+    code-for-first-row = \mathbf{\arabic{jCol}},
+    code-for-first-col = \mathbf{\arabic{iRow}}
+    ]
+    & & & & & & & & & & & & \\
+    & \frac{EA_x}{L} & 0 & 0 & 0 & 0 & 0 & -\frac{EA_x}{L} & 0 & 0 & 0 & 0 & 0 \\
+    & & \frac{12EI_z}{L^3} & 0 & 0 & 0 & \frac{6EI_z}{L^2} & 0 & -\frac{12EI_z}{L^3} & 0 & 0 & 0 & \frac{6EI_z}{L^2} \\
+    & & & \frac{12EI_y}{L^3} & 0 & -\frac{6EI_y}{L^2} & 0 & 0 & 0 & -\frac{12EI_y}{L^3} & 0 & -\frac{6EI_y}{L^2} & 0 \\
+    & & & & \frac{GI_x}{L} & 0 & 0 & 0 & 0 & 0 & -\frac{GI_x}{L} & 0 & 0 \\
+    & & & & & \frac{4EI_y}{L} & 0 & 0 & 0 & \frac{6EI_y}{L^2} & 0 & \frac{2EI_y}{L} & 0 \\
+    & & & & & & \frac{4EI_z}{L} & 0 & -\frac{6EI_z}{L^2} & 0 & 0 & 0 & \frac{2EI_z}{L} \\
+    & & & & & & & \frac{EA_x}{L} & 0 & 0 & 0 & 0 & 0 \\
+    & & & & & & & & \frac{12EI_z}{L^3} & 0 & 0 & 0 & -\frac{6EI_z}{L^2} \\
+    & & & & & & & & & \frac{12EI_y}{L^3} & 0 & \frac{6EI_y}{L^2} & 0 \\
+    & & & & & & & & & & \frac{GI_x}{L} & 0 & 0 \\
+    & & & & & & & & & & & \frac{4EI_y}{L} & 0 \\
+    & \emph{sim.} & & & & & & & & & & & \frac{4EI_z}{L}
+    \label{eq:matriz-rigidez-elemento-portico}
+  \end{bNiceArray}
+\end{equation}  
