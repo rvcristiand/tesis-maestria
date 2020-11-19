@@ -1,7 +1,7 @@
 \chapter{pyFEM}
 \label{cha:pyFEM}
 
-En la figura \ref{fig:space-frame} se presenta un elemento \emph{i} tipo \emph{pórtico} con sus nodos \emph{j} y \emph{k} empotrados. El sistema de coordenadas locales del elemento tiene como origen el nodo \emph{j}. El eje $ x $ coincide con el eje centroidal del elemento y es positivo en el sentido del nodo \emph{j} al nodo \emph{k}. Los ejes $ y $ y $ z $ son los ejes principales del elemento, de manera que los planos $ xy $ y $ zx $ son los planos principales de flexión. Se asume que el centro de cortante y el centroide del elemento coinciden de tal manera que la flexión y la torsión se presentan una independiente de la otra. Los grados de libertad se numeran del 1 al 12, empezando por las translaciones y las rotaciones del nodo \emph{j}, tomados en el orden $ x $, $ y $, $ z $ respectivamente, y después con las  translaciones y las rotaciones del nodo \emph{k} de forma similar.
+En la figura \ref{fig:space-frame} se presenta un elemento \emph{i} tipo \emph{pórtico} con sus nodos \emph{j} y \emph{k} empotrados. El sistema de coordenadas locales del elemento tiene como origen el nodo \emph{j}. El eje $ x $ coincide con el eje centroidal del elemento y es positivo en el sentido del nodo \emph{j} al nodo \emph{k}. Los ejes $ y $ y $ z $ son los ejes principales del elemento de manera que los planos $ xy $ y $ zx $ son los planos principales de flexión. Se asume que el centro de cortante y el centroide del elemento coinciden de tal forma que la flexión y la torsión se presentan una independiente de la otra. Los grados de libertad se numeran del 1 al 12, empezando por las translaciones y las rotaciones del nodo \emph{j}, tomados en orden $ x $, $ y $, $ z $ respectivamente.
 
 \begin{figure}[ht]
   \centering
@@ -85,16 +85,7 @@ En la figura \ref{fig:space-frame} se presenta un elemento \emph{i} tipo \emph{p
   \label{fig:space-frame}
 \end{figure}
 
-Según \cite{weaver1990matrixanalysis}, (\ref{eq:matriz-rigidez-elemento-portico}) es la matrix de rigidez del elemento tipo pórtico en coordenadas locales, donde:
-\begin{itemize}
-\item $ E $ módulo de elasticidad del material,
-\item $ G $ módulo de elasticidad a cortante del material,
-\item $ L $ la longitud del elemento,
-\item $ A_x $ es el área tranversal de la sección,
-\item $ I_x $ es la constante de torsión de la sección,
-\item $ I_y $ es el momento principal de inercia de la sección con respecto al eje $ y $,
-\item $ I_z $ es el momento principal de inercia de la sección con respecto al eje $ z $,
-\end{itemize}
+Según \cite{weaver1990matrixanalysis}, (\ref{eq:matriz-rigidez-elemento-portico}) es la matrix de rigidez del elemento tipo pórtico en coordenadas locales, donde $ E $ es el módulo de elasticidad del material, $ G $ es el módulo de elasticidad a cortante del material, $ L $ es la longitud del elemento y $ A_x $, $ I_x $, $ I_y $ y $ I_z $ son el área, la constante de torsión y los momentos principales de inercia con respecto a los ejes $ y $ y $ z $ de la sección transversal.\\
 
 \begin{equation}
   \begin{bNiceArray}{CCCCCCCCCCCC}[small,
