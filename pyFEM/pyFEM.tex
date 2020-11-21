@@ -111,15 +111,26 @@ Según \cite{weaver1990matrixanalysis}, (\ref{eq:matriz-rigidez-elemento-portico
   \end{bNiceArray}
 \end{equation}  
 
-Según \cite{dunn20023d}, la orientación en tres dimensiones se puede describir usando \emph{cuaterniones} que se definen como
+Según el \emph{teorema de rotación de Euler} (véase \cite{euler_rotations}), siempre es posible encontrar un diámetro de una esfera cuya posición es la misma después de rotarla alredor de su centro, por lo que cualquier secuencia de rotaciones de un sistema coordenado tridimensional es equivalente a una única rotación alrededor de un eje que pase por el origen.\\
+
+Según \cite{dunn20023d}, la orientación en tres dimensiones se puede describir usando \emph{cuaterniones}, los que se definen como
 \begin{equation}
   q = w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k}
 \end{equation}
 
-Los cuaterniones extienden el sistema de números complejos al tener tres números imaginarios los cuales se relacionan de la siguiente manera
+Los cuateriones extienden el sistema de números complejos al tener tres números imaginarios que se relacionan de la siguiente manera
 \begin{gather}
   i^2 = j^2 = k^2 = -1 \\
   ij = k, ji = -k \nonumber \\
   jk = i, kj = -i \nonumber \\
   ki = j, ik = -j \nonumber
 \end{gather}
+
+Sea $ \mathbf{n} $ un vector unitario en tres dimensiones y $ \theta $ una cantidad escalar. La rotación de un sistema de coordenadas tridimensionales alrededor  del eje $ \mathbf{n} $ una cantidad $ \theta $ se puede describir mediante un cuaternión como
+
+\begin{equation}
+  \mathbf{q} =
+  \begin{bmatrix}
+    cos(\theta/2) & sin(\theta/2) \mathbf{n}
+  \end{bmatrix}
+\end{equation}
