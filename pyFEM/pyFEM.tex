@@ -113,20 +113,16 @@ Según \cite{weaver1990matrixanalysis}, (\ref{eq:matriz-rigidez-elemento-portico
 
 Según el \emph{teorema de rotación de Euler} (véase \cite{euler_rotations}), siempre es posible encontrar un diámetro de una esfera cuya posición es la misma después de rotarla alredor de su centro, por lo que cualquier secuencia de rotaciones de un sistema coordenado tridimensional es equivalente a una única rotación alrededor de un eje que pase por el origen.\\
 
-Según \cite{dunn20023d}, la orientación en tres dimensiones se puede describir usando \emph{cuaterniones}, los que se definen como
+El ángulo $ \theta $ y el vector $ n $  que definen la rotación del eje $ x $ del sistema de coordenadas global hacia el eje $ x_m $ del sistema de coordenadas de un elemento se puede calcular como
 \begin{equation}
-  q = w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k}
+  \begin{aligned}
+    \mathbf{n} &= (1, 0, 0) \times \mathbf{x_m} \\
+    \theta &= \arcsen((1, 0, 0) \cdot \mathbf{x_m})
+  \end{aligned}
 \end{equation}
 
-Los cuateriones extienden el sistema de números complejos al tener tres números imaginarios que se relacionan de la siguiente manera
-\begin{gather}
-  i^2 = j^2 = k^2 = -1 \\
-  ij = k, ji = -k \nonumber \\
-  jk = i, kj = -i \nonumber \\
-  ki = j, ik = -j \nonumber
-\end{gather}
 
-Sea $ \mathbf{n} $ un vector unitario en tres dimensiones y $ \theta $ una cantidad escalar. La rotación de un sistema de coordenadas tridimensionales alrededor  del eje $ \mathbf{n} $ una cantidad $ \theta $ se puede describir mediante un cuaternión como
+Según \cite{dunn20023d}, la rotación de un sistema de coordenadas tridimensionales alrededor del eje $ \mathbf{n} $ una cantidad $ \theta $ se puede describir mediante un \emph{cuaternión} como
 
 \begin{equation}
   \mathbf{q} =
@@ -134,3 +130,15 @@ Sea $ \mathbf{n} $ un vector unitario en tres dimensiones y $ \theta $ una canti
     cos(\theta/2) & sin(\theta/2) \mathbf{n}
   \end{bmatrix}
 \end{equation}
+
+y se puede obtener la matriz de rotación a partir de un cuaternión de la siguiente manera
+\begin{equation}
+  \mathbf{R} =
+  \begin{bNiceMatrix}
+    1 - 2y^2-2z^2 & 2xy + 2wz & 2xz - 2wy \\
+    2xy - 2wz & 1 - 2x^2-2z^2 & 2yz + 2wx \\
+    2xz + 2wy & 2yz-2wx & 1 - 2x^2 - 2y^2
+  \end{bNiceMatrix}
+\end{equation}
+
+donde $ w $ es la parte escalar y $ x $, $ y $ y $ z $ la parte vectorial del cuaternión.
