@@ -6,6 +6,9 @@
 *.log
 *.fls
 *.out
+*.lof
+*.lot
+*.toc
 
 ## Bibliography auxiliary files:
 *.bbl
