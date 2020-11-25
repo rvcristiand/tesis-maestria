@@ -7,7 +7,7 @@ En \cite{escamilla1995microcomputadores} se presenta una lista de algunos de est
 
 ETABS es un programa de computador creado por Edward Wilson, Jeffery Hollings y Henry Dovey en 1975. Según \cite{ETABS1975}, este programa de computador fue desarrollado para el análisis estructural lineal de edificios de pórticos y muros a cortante sujetos tanto a cargas estáticas como sísmicas. El edificio es idealizado como un sistema de elementos tipo pórticos y muros a cortante independientes interconectado por losas de entrepiso las cuales son rígidas en su propio plano. \\
 
-Este programa es una extensión de \emph{TABS} (Three Dimensional Analysis of  Building Systems) para permitir analizar pórticos en tres dimensiones. Según \cite{ETABS1972}, una de las razones para desarrollar TABS fue darle una retroalimentación a los usuarios de los programas \emph{FRMSTC} (Static Load Analysis of High-Rise Buildings), \emph{FRMDYN} (Dynamic Analysis of Multistory Buildings), \emph{LATERAL} y \emph{SOLID SAP} (Static Analysis Program for Three-Dimensional Solid Structures).\\
+Este programa es una extensión de \emph{TABS} (Three Dimensional Analysis of  Building Systems) para poder analizar pórticos en tres dimensiones. Según \cite{ETABS1972}, una de las razones para desarrollar TABS fue darle una retroalimentación a los usuarios de los programas \emph{FRMSTC} (Static Load Analysis of High-Rise Buildings), \emph{FRMDYN} (Dynamic Analysis of Multistory Buildings), \emph{LATERAL} y \emph{SOLID SAP} (Static Analysis Program for Three-Dimensional Solid Structures).\\
 
 FRMSTC permitía analizar edificios simétricos con pórticos y muros a cortante paralelos sujetos a cargas estáticas y evaluar los modos y las frecuencias. FRMDYN era similar a FRMSTC con la excepción que la carga era la aceleración del terreno debido a un desplazamiento dependiente del tiempo. LATERAL fue una extensión de FRMSTC que permitía analizar linealmente pórticos y muros a cortante que no eran necesariamente paralelos con tres grados de libertad en cada piso. SOLID SAP era un programa general de elementos finitos y tenía una opción que permitía introducir la aproximación de piso rígido. Este programa también tenía la opción de realizar análisis dinámico.\\
 
@@ -50,14 +50,77 @@ Según \cite{ETABS2017analysisreferencemanual}, ETABS analiza el modelo usando e
     \item Propiedades de los resortes y apoyos dependientes de la frecuencia,
 \end{itemize}
 
-Con los resultados del análisis del modelo, el posprocesador de ETABS puede \emph{diseñar} los elementos estructurales de acuerdo a uno de varios códigos de diseño de diferentes países. ETABS es capaz de diseñar pórticos en acero, pórticos en concreto, vigas compuestas, columnas compuestas, vigas en acero de alma abierta (\emph{steel joist}), muros a cortante y losas de concreto.\\
+Con los resultados del análisis del modelo, el posprocesador de ETABS puede \emph{diseñar} los elementos estructurales de acuerdo a uno de varios códigos de diseño de diferentes países. ETABS es capaz de diseñar pórticos en acero, pórticos en concreto, vigas compuestas, columnas compuestas, vigas en acero de alma abierta (\emph{steel joist}), muros a cortpante y losas de concreto.\\
 
-Adicionalmente, según \cite{ETABS2019welcome}, ETABS cuenta con la posibilidad de generar dibujos estructurales esquemáticos de las plantas estructurales, los despieces de vigas, columnas y muros a cortante, y detalles de las conexiones de acero.\\
+Adicionalmente, según \cite{ETABS2019welcome}, ETABS cuenta con la posibilidad de generar dibujos estructurales esquemáticos de las plantas estructurales, de los despieces de vigas, columnas y muros a cortante, y de los detalles de las conexiones de acero.\\
 
 En términos generales, estos programas de computador comerciales cuenta con características similares a las de ETABS. Actualmente, dichos programas están innovando para permitirle al usuario trabajar con modelos \emph{BIM} (Building Information Modeling) con la intención de centralizar toda la información del proyecto y así obtener los beneficios que trae este esquema de trabajo.\\
 
+\section{Objetivo}
 
-% % Dado que la intención de este trabajo es desarrollar un programa de computador a código abierto que cuente con características similares a los programas comerciales, en este capítulo se inicia identificando dichas características. Así mismo, se estudian las características de los programas a código abierto. \\
+Desarrollar un programa de computador a código abierto para el análisis de estructuras tridimensionales tipo pórtico sometidas a cargas estáticas.\\
+
+Con este trabajo se pretende contribuir al ejercicio libre de la profesión del ingeniero estructural y a la enseñanza del análisis de las estructuras.
+
+\subsection{Objetivos específicos}
+
+\begin{itemize}
+\item Desarrollar el ambiente gráfico y la interfaz gráfica de usuario del programa de computador para permitirle al usuario ingresar los datos que describen la estructura, las acciones a las cuales se encuentra sometida y visualizar los resultados del análisis estructural.
+\item Desarrollar el módulo de análisis estructural para calcular el desplazamiento de los nudos, el valor de las reacciones y de las fuerzas internas de los elementos de una estructura sometida a cargas estáticas.
+\end{itemize}
+
+\section{Metodología}
+Se desarrollaron los programas de computador \emph{pyFEM} y \emph{FEM.js}. El primero para analizar estructuras tridimensionales tipo pórtico sometidas a cargas estáticas y el segundo para modelarlas. Esto con el fin que FEM.js pueda ser usado junto con otro programa de computador diferente a pyFEM.\\
+
+Durante el desarrollo de estos programas se utilizó \emph{git} como sistema de control de versiones. Según \cite{chacon2014git}, git, creado en 2005 por Linus Torvalds, es un sistema distribuido de control de versiones que registra los cambios realizados a un conjunto de archivos para coordinar el trabajo entre programadores.\\
+
+Una copia de los repositorios de pyFEM y FEM.js se encuentran en la página de internet \emph{GitHub}, la cual permite alojar proyectos utilizando git. pyFEM está alojado en \url{https://github.com/rvcristiand/pyFEM} mientras que FEM.js está alojado en \url{https://github.com/rvcristiand/FEM.js}.\\
+
+\subsection{pyFEM}
+
+pyFEM fue desarrollado en \emph{Python}. Según \cite{lutz2013python}, Python es un lenguaje de programación interpretado orientado a objetos cuya filosofía hace enfasis en la legibilidad de su código. Los archivos revelantes que componen el repositorio de pyFEM son:
+\pagebreak
+
+\dirtree{%
+  .1 pyFEM/.
+  .2 LICENSE.
+  .2 README.md.
+  .2 example\_1.json.
+  .2 example\_2.json.
+  .2 example\_3.json.
+  .2 pyFEM/.
+  .3 classtools.py.
+  .3 core.py.
+  .3 primitives.py.
+  .2 test/.
+  .3 space\_frame.py.
+  .3 trusses.py.
+}
+
+\vspace{10 mm}
+El archivo \verb|LICENCE| contiene la licencia de pyFEM, la cual transcribo a continuación.
+
+\begin{quotation}
+  MIT License\\
+
+  Copyright (c) 2019 pyFEM\\
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\\
+  
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\\
+
+  THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+\end{quotation}
+
+El archivo \verb|README.md| contiene todas las instrucciones necesarias para ejecutar y usar pyFEM.\\
+
+utilizando el paradigma de programación orientada a objetos. .\\
+
+empleando técnicas y herramientas . pyFEM es un programa de computador desarrollado en \emph{python}  programas de computador 
+\begin{itemize}
+\item Identificar las bibliotecas necesarias para el desarrollo del programa de computador: se investigarán diferentes posibilidades para seleccionar el lenguaje de programación, las bibliotecas más apropiadas para el desarrollo del ambiente gráfico, la interfaz gráfica de usuario, el módulo de análisis estructural y la compatibilidad entre ellas.
+  
+\end{itemize}
 
 % % \section{Revisión de los programas comerciales}
 % % La intensión de este trabajo fue realizar un programa de computador llamado \textit{StressUN} similar a los programas comerciales, de tal manera que se procedió a estudiar los diferentes elementos que los caracterizan. \\
