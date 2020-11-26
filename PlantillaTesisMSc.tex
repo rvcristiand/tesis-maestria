@@ -20,6 +20,9 @@
 \usepackage{blkarray}
 
 % Me
+\usepackage{multicol}
+\setlength{\columnseprule}{0.4pt}
+
 \usepackage{tikz}
 \usepackage[hidelinks]{hyperref}
 \usepackage{siunitx}
@@ -42,6 +45,10 @@
 \imagelabelset{
 	outer dist = -0.5 cm
 }
+
+\usepackage{dirtree}
+
+\newtheorem{example}{Ejemplo}
 
 \renewcommand{\lstlistingname}{Algoritmo}% Listing -> Algorithm
 \renewcommand{\lstlistlistingname}{Lista de \lstlistingname s}% List of Listings -> List of Algorithm
@@ -189,7 +196,7 @@
 
 \begin{document}
 \pagenumbering{roman}
-\include{HojaTitulo/HojaTituloMSc}
+% \include{HojaTitulo/HojaTituloMSc}
 
 \renewcommand{\tablename}{\textbf{Tabla}}
 \renewcommand{\figurename}{\textbf{Figura}}
@@ -202,20 +209,20 @@
 
 \cleardoublepage
 % \addcontentsline{toc}{chapter}{Lista de figuras} % para que aparezca en el indice de contenidos
-\listoffigures % indice de figuras
+% \listoffigures % indice de figuras
 
-\cleardoublepage
+% \cleardoublepage
 % \addcontentsline{toc}{chapter}{Lista de tablas} % para que aparezca en el indice de contenidos
-\listoftables % indice de tablas
+% \listoftables % indice de tablas
 
-\cleardoublepage
+% \cleardoublepage
 % \include{Tab_Simbolos/TabSimbolosMSc}
 %\include{Resumen}%\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
 \pagenumbering{arabic}
 
 % \include{MarcoTeorico/MarcoTeorico}
 \include{introduction/introduction}
-\include{pyFEM/pyFEM}
+% \include{pyFEM/pyFEM}
 % \include{metodologia/Metodologia}
 % \include{ejemplos_aplicacion/ejemplos_aplicacion}
 % \include{analisis_resultados/analisis_resultados}
