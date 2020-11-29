@@ -128,9 +128,378 @@ En el archivo \verb|primitives.py| se encuentran varias clases, entre ellas \ver
 
 En el archivo \verb|core.py| se encuentra la clase \verb|Structure| la cual permite describir estructuras para ser analizados. Para crear objetos de esta clase se debe llamar la clase indicando los grados de libertad a tener en cuenta. A partir de un objeto de esta clase es posible describir el modelo de la estructura al agregar materiales, secciones transversales, nodos, elemenetos tipo pórtico, apoyos, patrones de carga, cargas en los nodos y cargas distribuidas en los elementos tipo pórtico.\\
 
+En el ejemplo \ref{ej:cercha-plana} se presenta la solución a un ejercicio de \cite{escamilla1995microcomputadores} usando pyFEM.
+\pagebreak
+
 \begin{ejemplo}
-  holi
+  \label{ej:cercha-plana}
+  Resuelva completamente la cercha mostrada por el método matricial de los desplazamientos. El material es acero estructural con $ E = 2040\; t / cm^2 $. Las áreas están dadas entre paréntesis en $ cm^2 $.\\
+
+    \begin{center}
+      \begin{tikzpicture}
+        % Points
+        \point{1}{0}{0};
+        \point{2}{8}{0};
+        \point{3}{4}{3};
+        \point{4}{4}{0};
+        
+        \point{p}{4}{-1.3};
+        \point{q}{5.05}{3.7875};
+        
+        \point{1-3}{2}{1.5};
+        \point{1-4}{2}{0};
+        \point{3-2}{6}{1.5};
+        \point{4-2}{6}{0};
+        \point{4-3}{4}{1.5};
+        
+        % Beams
+        \beam{2}{1}{3}[0][0];
+        \beam{2}{1}{4}[1][1];
+        \beam{2}{3}{2}[1][1];
+        \beam{2}{4}{2}[1][1];
+        \beam{2}{4}{3}[1][1];
+        
+        % Supports
+        \support{1}{1};
+        \support{2}{2};
+        
+        % Joints
+        \hinge{1}{1};
+        \hinge{1}{2};
+        \hinge{1}{3};
+        \hinge{1}{4};
+        
+        % Loads
+        \load{1}{q}[216.87];
+        \load{1}{p}[90];
+        
+        % notation
+        \notation{1}{1}{1}[above left];
+        \notation{1}{2}{2}[above right];
+        \notation{1}{3}{3}[above left];
+        \notation{1}{4}{4}[below left];
+        
+        \notation{1}{3}{$ \SI{5}{\tonne} $}[above right=10mm];
+        \notation{1}{4}{$ \SI{20}{\tonne} $}[below right=5mm and 0mm];
+        
+        \notation{5}{1}{3}[$ (100) $ ][.5][above][0.5];
+        \notation{5}{1}{4}[$ (40) $ ][.5][above][0.5];
+        \notation{5}{3}{2}[$ (150) $ ][.5][above][0.5];
+        \notation{5}{4}{2}[$ (40) $ ][.5][above][0.5];
+        \notation{5}{4}{3}[$ (30) $ ][.5][right][1];
+        
+        
+        % Dimensions
+        \dimensioning{1}{1}{4}{-1.5}[$ \SI{4}{m} $];
+        \dimensioning{1}{4}{2}{-1.5}[$ \SI{4}{m} $];
+        \dimensioning{2}{2}{3}{9}[$ \SI{3}{m} $];
+      \end{tikzpicture}
+      \captionof{figure}{Cercha simple plana del \textit{Ejemplo 7.1} de \cite{escamilla1995microcomputadores}.}
+    \end{center}
+
+    \textit{\textbf{Solución -}} En el algoritmo \ref{alg:cercha_plana} se presenta un programa de Python para solucionar el modelo de la estructura usando pyFEM. Las instrucciones consisten en crear un nuevo objeto tipo \verb|Structure|, al cual se le ha dado el nombre de \emph{structure} y, seguidamente, se agregan los materiales, las secciones, los nodos, los elementos tipo cercha, los apoyos, los patrones de carga y las cargas en los nodos. Una vez los datos del modelo de la estructura han sido ingresados, se puede solucionar el modelo mediante la instrucción \verb|structure.solve()|. \\
+
+\begin{lstlisting}[language=Python,caption=Ingreso de los datos del modelo de la estructura a \textit{pyFEM}.,label=alg:cercha_plana, frame=single]
+# create the model
+model = Structure(ux=True, uy=True)
+
+# add materials
+model.add_material(key='1', modulus_elasticity=2040e4)
+
+# add sections
+model.add_section(key='1', area=030e-4)
+model.add_section('2', area=040e-4)
+model.add_section('3', area=100e-4)
+model.add_section('4', area=150e-4)
+
+# add joints
+model.add_joint(key=1, x=0, y=0)
+model.add_joint(2, 8, 0)
+model.add_joint(3, 4, 3)
+model.add_joint(4, 4, 0)
+
+# add frames
+model.add_frame(key='1-3', key_joint_j=1, key_joint_k=3, key_material='1', key_section='3')
+model.add_frame('1-4', 1, 4, '1', '2')
+model.add_frame('3-2', 3, 2, '1', '4')
+model.add_frame('4-2', 4, 2, '1', '2')
+model.add_frame('4-3', 4, 3, '1', '1')
+
+# add supports
+model.add_support(key_joint=1, ux=True, uy=True)
+model.add_support(2, ux=False, uy=True)
+
+# add load patterns
+model.add_load_pattern(key='point loads')
+
+# add point loads
+model.add_load_at_joint(key_load_pattern='point loads', key_joint=3, fx=5 * 0.8, fy=5 * 0.6)
+model.add_load_at_joint('point loads' , 4, fy=-20)
+
+# solve the problem
+model.solve()
+
+print(model)
+
+# export the model
+model.export('example_1.json')
+\end{lstlisting}
 \end{ejemplo}
+
+
+
+
+
+
+
+
+
+
+
+Cuando se ejecuta la instrucción \texttt{structure.solve()}, \texttt{pyFEM} comienza a solucionar el modelo de la estructura con base en la información ingresada. Los pasos que se efectúan para solucionar la estructura consisten en: 
+\begin{inparaenum}[$ (1) $]
+    \item asignar los grados de libertad de los nodos, 
+    \item ensamblar la matriz de rigidez del modelo de la estructura, 
+    \item imponer las condiciones de apoyo en la matriz de rigidez del modelo, 
+    \item ensamblar el vector de fuerzas en los nodos para cada uno de los patrones de carga, 
+    \item imponer las condiciones de apoyo en el vector de fuerzas en los nodos para cada caso de carga, 
+    \item encontrar los desplazamientos de los nodos para cada patrón de carga, 
+    \item encontrar las reacciones en los apoyos para cada patrón de carga y
+    \item guardar la solución en los nodos y en los apoyos para cada patrón de carga.
+\end{inparaenum} \\
+
+A continuación se presenta el resultado de cada uno de los pasos realizados por \texttt{pyFEM} para solucionar la cercha del ejemplo 7.1. \\
+
+\subsubsection{Grados de libertad de los nodos}
+Para realizar el ensamblaje de la matriz de rigidez del modelo de la estructura y del vector de fuerzas de los nodos, se asignan números a los grados de libertad de los nodos de la estructura en el orden en que fueron ingresados. \\
+
+Con base en ésto y en el algoritmo \ref{alg:cercha_plana}, el nodo \textit{'1'} se le han asignado los grados de libertad \textit{0, 1} y \textit{2}, al nodo \textit{'2'} los grados de libertad \textit{3, 4} y \textit{5}, y así sucesivamente.
+
+\subsubsection{Matrices de rígidez}
+Una vez se establecen los grados de libertad de los nodos del modelo de la estructura, se ensambla la matriz de rigidez del modelo de la estructura. Este proceso consiste en calcular una a una las matrices de rigidez de los elementos ensamblandolas en la matriz de rigidez del modelo, la cual, inicialmente, es una matriz de ceros. \\
+
+Aunque no se almacenan las matrices de rigidez de cada uno de los elementos del modelo de la estructura, el usuario puede consultarlas. En la tabla \ref{tab:k_1_3} se presenta la matriz de rigidez en coordenadas globales del elemento \textit{1-3}, con sus respectivos grados de libertad, la cual se obtiene mediante la instrucción \textit{\textit{structure.trusses['1-3'].get\_global\_stiff\_matrix()}}. \\
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{ccccccc}
+        & \textit{0} & \textit{1} & \textit{2} & \textit{6} & \textit{7} & \textit{8} \\
+        \begin{block}{c[cccccc]}
+            \textit{0} & 26112 & 19584 & 0 & -261112 & -19584 & 0 \\
+            \textit{1} & 19584 & 14688 & 0 & -19584 & -14688 & 0 \\
+            \textit{2} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{3} & -26112 & -19584 & 0 & 26112 & 19584 & 0 \\
+            \textit{4} & -19584 & -14688 & 0 & 19584 & 14688 & 0 \\
+            \textit{5} & 0 & 0 & 0 & 0 & 0 & 0 \\
+        \end{block}
+    \end{blockarray} \si[per-mode=symbol]{\tonne\per\meter}
+    \caption{Matriz de rigidez en coordenadas globales del elemento \textit{1-3}.}
+    \label{tab:k_1_3}
+\end{table}
+
+En las tablas \ref{tab:k_1_4} a la \ref{tab:k_4_3} se presentan las matrices de rigidez en coordenadas globales de los demás elementos de la estructura, las cuales se obtienen con instrucciones similares a la anterior. \\
+
+\begin{table}[h]
+    \centering
+    \begin{blockarray}{ccccccc}
+        & \textit{0} & \textit{1} & \textit{2} & \textit{9} & \textit{10} & \textit{11} \\
+        \begin{block}{c[cccccc]}
+            \textit{0} & 20400 & 0 & 0 & -20400 & 0 & 0 \\
+            \textit{1} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{2} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{9} & -20400 & 0 & 0 & 20400 & 0 & 0 \\
+            \textit{10} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{11} & 0 & 0 & 0 & 0 & 0 & 0 \\
+        \end{block} 
+    \end{blockarray} \si[per-mode=symbol]{\tonne\per\meter}
+    \caption{Matriz de rigidez en coordenadas globales del elemento \textit{1-4}.}
+    \label{tab:k_1_4}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{ccccccc}
+        & \textit{6} & \textit{7} & \textit{8} & \textit{3} & \textit{4} & \textit{5} \\
+        \begin{block}{c[cccccc]}
+            \textit{6} & 39168 & -29376 & 0 & -39168 & 29376 & 0 \\
+            \textit{7} & -29376 & 22032 & 0 & 29376 & -22032 & 0 \\
+            \textit{8} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{3} & -39168 & 29376 & 0 & 39168 & -29376 & 0 \\
+            \textit{4} & 29376 & -22032 & 0 & -29376 & 22032 & 0 \\
+            \textit{5} & 0 & 0 & 0 & 0 & 0 & 0 \\
+        \end{block}
+    \end{blockarray} \si[per-mode=symbol]{\tonne\per\meter}
+    \caption{Matriz de rigidez en coordenadas globales del elemento \textit{3-2}.}
+    \label{tab:k_3_2}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{ccccccc}
+        & \textit{9} & \textit{10} & \textit{11} & \textit{3} & \textit{4} & \textit{5} \\
+        \begin{block}{c[cccccc]}
+            \textit{9} & 20400 & 0 & 0 & -20400 & 0 & 0 \\
+            \textit{10} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{11} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{3} & -20400 & 0 & 0 & 20400 & 0 & 0 \\
+            \textit{4} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{5} & 0 & 0 & 0 & 0 & 0 & 0 \\
+        \end{block}
+    \end{blockarray} \si[per-mode=symbol]{\tonne\per\meter}
+    \caption{Matriz de rigidez en coordenadas globales del elemento \textit{4-2}.}
+    \label{tab:k_4_2}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{blockarray}{ccccccc}
+        & \textit{9} & \textit{10} & \textit{11} & \textit{6} & \textit{7} & \textit{8} \\
+        \begin{block}{c[cccccc]}
+            \textit{9} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{10} & 0 & 20400 & 0 & 0 & -20400 & 0 \\
+            \textit{11} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{6} & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{7} & 0 & -20400 & 0 & 0 & 20400 & 0 \\
+            \textit{8} & 0 & 0 & 0 & 0 & 0 & 0 \\
+        \end{block}
+    \end{blockarray} \si[per-mode=symbol]{\tonne\per\meter}
+    \caption{Matriz de rigidez en coordenadas globales del elemento \textit{4-3}.}
+    \label{tab:k_4_3}
+\end{table}
+
+Al comparar los resultados obtenidos con las matrices de rigidez de cada uno de los elementos presentados en \cite{escamilla1995microcomputadores} se encuentra que se trata de los mismos valores. \\
+
+Así mismo como el usuario puede indagar por la matriz de rigidez en coordenadas globales de cada elemento, puede hacerlo para el modelo de la estructura, mediante la instrucción \textit{\textit{structure.get\_k()}}. Al hacerlo, obtiene los valores presentados en la tabla \ref{tab:k_global}.\\
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{ccccccccccccc}
+        & \textit{0} & \textit{1} & \textit{2} & \textit{3} & \textit{4} & \textit{5} & \textit{6} & \textit{7} & \textit{8} & \textit{9} & \textit{10} & \textit{11} \\
+        \begin{block}{c[cccccccccccc]}
+            \textit{0} & 46512 & 19584 & 0 & 0 & 0 & 0 & -26112 & -19584 & 0 & -20400 & 0 & 0 \\
+            \textit{1} & 19584 & 14688 & 0 & 0 & 0 & 0 & -19584 & -14688 & 0 & 0 & 0 & 0 \\
+            \textit{2} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{3} & 0 & 0 & 0 & 59568 & -29376 & 0 & -39168 & 29376 & 0 & -20400 & 0 & 0 \\
+            \textit{4} & 0 & 0 & 0 & -29376 & 22032 & 0 & 29376 & -22032 & 0 & 0 & 0 & 0 \\
+            \textit{5} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{6} & -26112 & -19584 & 0 & -39168 & 29376 & 0 & 65280 & -9792 & 0 & 0 & 0 & 0 \\
+            \textit{7} & -19584 & -14688 & 0 & 29376 & -22032 & 0 & -9792 & 57120 & 0 & 0 & -20400 & 0 \\
+            \textit{8} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{9} & -20400 & 0 & 0 & -20400 & 0 & 0 & 0 & 0 & 0 & 40800 & 0 & 0 \\
+            \textit{10} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -20400 & 0 & 0 & 20400 & 0 \\
+            \textit{11} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+        \end{block}
+    \end{blockarray} \si[per-mode=symbol]{\tonne\per\meter}
+    \caption{Matriz de rigidez en coordenadas globales del modelo de la estructura.}
+    \label{tab:k_global}
+\end{table}
+
+Una vez más, al comparar los resultados obtenidos con la matriz de rigidez del modelo de la estructura presentado en \cite{escamilla1995microcomputadores} se encuentra que se trata de los mismos valores. Sin embargo, se debe reordenar una de las dos matrices para encontrar los valores en las mismas posiciones de la matriz. \\
+
+Obtenida la matriz de rigidez de la estructura, se procede a imponer las condiciones de apoyo del modelo de la estructura. Esto se realiza modificando la estructura, tal como se mostró en el capítulo \ref{chap:metodologia}. En la tabla \ref{tab:k_global_support_applied} se presenta dicho resultado. \\
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{ccccccccccccc}
+        & \textit{0} & \textit{1} & \textit{2} & \textit{3} & \textit{4} & \textit{5} & \textit{6} & \textit{7} & \textit{8} & \textit{9} & \textit{10} & \textit{11} \\
+        \begin{block}{c[cccccccccccc]}
+            \textit{0} & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{1} & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{2} & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{3} & 0 & 0 & 0 & 59568 & 0 & 0 & -39168 & 29376 & 0 & -20400 & 0 & 0 \\
+            \textit{4} & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{5} & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+            \textit{6} & 0 & 0 & 0 & -39168 & 0 & 0 & 65280 & -9792 & 0 & 0 & 0 & 0 \\
+            \textit{7} & 0 & 0 & 0 & 29376 & 0 & 0 & -9792 & 57120 & 0 & 0 & -20400 & 0 \\
+            \textit{8} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+            \textit{9} & 0 & 0 & 0 & -20400 & 0 & 0 & 0 & 0 & 0 & 40800 & 0 & 0 \\
+            \textit{10} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & -20400 & 0 & 0 & 20400 & 0 \\
+            \textit{11} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+        \end{block}
+    \end{blockarray} \si[per-mode=symbol]{\tonne\per\meter}
+    \caption{Matriz de rigidez en coordenadas globales del modelo de la estructura con las condiciones de apoyo impuestas.}
+    \label{tab:k_global_support_applied}
+\end{table}
+
+\subsubsection{Vector de fuerzas}
+
+Así como se deben encontrar las matrices de rigidez de cada uno de los elementos del modelo de la estructura para posteriormente \textit{ensamblarlas}, se deben encontrar las acciones en los nodos de los elementos para cada patrón de carga. \\
+
+El usuario puede indagar por dicho vector, para el patrón de carga \textit{point loads} mediante la instrucción \texttt{structure.load\_patterns['point loads'].get\_f()}. Con dicha instrucción, el usuario obtiene los datos que se muestran en la tabla \ref{tab:f_global}. \\
+
+Obtenido el vector de fuerzas para dicho patrón de carga, se imponen las condiciones de apoyo del modelo de la estructura. Debido a que los desplazamiento en los apoyos son iguales a cero, el vector de fuerzas en los nodos no varia. \\
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{cccccccccccc}
+        \textit{0} & \textit{1} & \textit{2} & \textit{3} & \textit{4} & \textit{5} & \textit{6} & \textit{7} & \textit{8} & \textit{9} & \textit{10} & \textit{11} \\
+        \begin{block}{\{cccccccccccc\}}
+            0 & 0 & 0 & 0 & 0 & 0 & 4 & 3 & 0 & 0 & -20 & 0 \\
+        \end{block}
+    \end{blockarray} $ ^{t} $ \si{\tonne}
+    \caption{Vector de fuerzas de los nodos del modelo de la estructura para el patrón de carga \textit{point loads}.}
+    \label{tab:f_global}
+\end{table}
+
+\subsubsection{Vector de desplazamientos}
+Al imponerse las condiciones de apoyo a la matriz de rigidez del modelo de la estructura, se determinan los desplazamientos de los nodos de la estructura para cada uno de los patrones de carga, donde se ha calculado el vector de fueras en los nodos de cada patrón de cargas y se le han impuesto las condiciones de apoyo. \\
+
+En la tabla \ref{tab:u_point_loads} se presenta el vector de desplazamientos en los nodos del modelo de la estructura para el patrón de carga \textit{point loads}, los cuales son iguales a los presentados en \cite{escamilla1995microcomputadores}.
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{cccccccccccc}
+        \textit{0} & \textit{1} & \textit{2} & \textit{3} & \textit{4} & \textit{5} & \textit{6} & \textit{7} & \textit{8} & \textit{9} & \textit{10} & \textit{11} \\
+        \begin{block}{\{cccccccccccc\}}
+            0 & 0 & 0 & \num{1.307} & 0 & 0 & \num{0.645} & \num{-1.337} & 0 & \num{0.654} & \num{-2.317} & 0 \\
+        \end{block} 
+    \end{blockarray} $ ^{t} $ \SI{1e-3}{\meter} 
+    \caption{Vector de desplazamientos de los nodos del modelo de la estructura para el patrón de carga \textit{point loads}.}
+    \label{tab:u_point_loads}
+\end{table}
+
+\subsubsection{Vector de reacciones}
+Una vez se encuentran los desplazamientos en los nodos del modelo de la estructura, para cada uno de los patrones de carga, se procede a encontrar las fuerzas en los nodos producto de dichos desplazamientos. \\
+
+En la tabla \ref{tab:f_point_loads_solution} se presenta el vector de fuerzas en los nodos del modelo de la estructura para el patrón de carga \textit{point loads}, los cuales son iguales a los presentados en \cite{escamilla1995microcomputadores}.
+
+\begin{table}[ht]
+    \centering
+    \begin{blockarray}{cccccccccccc}
+        \textit{0} & \textit{1} & \textit{2} & \textit{3} & \textit{4} & \textit{5} & \textit{6} & \textit{7} & \textit{8} & \textit{9} & \textit{10} & \textit{11} \\
+        \begin{block}{\{cccccccccccc\}}
+            -4 & 7 & 0 & 0 & 10 & 0 & 4 & 3 & 0 & 0 & -20 & 0 \\
+        \end{block} 
+    \end{blockarray} $ ^{t} $ \si{\tonne} 
+    \caption{Vector de fuerzas de los nodos del modelo de la estructura para el patrón de carga \textit{point loads}.}
+    \label{tab:f_point_loads_solution}
+\end{table}
+
+\subsubsection{Procesamiento de los resultados}
+
+Hasta aquí, se ha solucionado el modelo de la estructura sometida al patrón de carga \textit{point loads}. Con los resultados almacenados, se pueden determinar otros resultados que son interesantes. Para el caso concreto del modelo objeto de estudio en esta sección, se puede querer determinar las fuerzas internas de los elementos o las defomaciones en los mismos. \\
+
+A modo de ejemplo, en la tabla \ref{tab:internal_forces} se presenta las fuerzas internas de cada uno de los elementos del modelo de la estructura sometidos al patrón de carga \textit{point loads}, los cuales son prácticamente iguales a los presentados en \cite{escamilla1995microcomputadores}.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        Elemento & Fuerza [\si{\tonne}] \\
+        \hline
+        1-3 & -11.667 \\
+        \hline
+        1-4 & 13.333 \\
+        \hline
+        3-2 & -16.667 \\
+        \hline
+        4-2 & 13.333 \\
+        \hline
+        4-3 & 20 \\
+        \hline
+    \end{tabular}
+    \caption{Fuerzas internas de los elementos del modelo de la estructura para el patrón de carga \textit{point loads}.}
+    \label{tab:internal_forces}
+\end{table}
 
 % A continuación se presenta la estructura general que tienen estos archivos.
 

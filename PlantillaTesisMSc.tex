@@ -7,6 +7,9 @@
 \usepackage{epic}
 \usepackage{eepic}
 \usepackage{amsmath}
+
+\usepackage{amsthm}
+
 \usepackage{nccmath}
 \usepackage{threeparttable}
 \usepackage{amscd}
@@ -48,7 +51,10 @@
 
 \usepackage{dirtree}
 
-\newtheorem{example}{Ejemplo}
+\theoremstyle{plain}
+\newtheorem{example}{Ejemplo}[chapter]
+
+\usepackage{caption}
 
 \renewcommand{\lstlistingname}{Algoritmo}% Listing -> Algorithm
 \renewcommand{\lstlistlistingname}{Lista de \lstlistingname s}% List of Listings -> List of Algorithm
