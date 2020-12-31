@@ -23,7 +23,12 @@
 ## tcolorbox
 *.listing
 
+## gumi
+.*.swp
+
 # auto folder when using emacs and auctex
 ./auto/*
 *.el
+
+# emacs
 .\#*

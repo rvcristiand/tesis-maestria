@@ -7,6 +7,9 @@
 \usepackage{epic}
 \usepackage{eepic}
 \usepackage{amsmath}
+
+\usepackage{amsthm}
+
 \usepackage{nccmath}
 \usepackage{threeparttable}
 \usepackage{amscd}
@@ -20,6 +23,9 @@
 \usepackage{blkarray}
 
 % Me
+\usepackage{multicol}
+\setlength{\columnseprule}{0.4pt}
+
 \usepackage{tikz}
 \usepackage[hidelinks]{hyperref}
 \usepackage{siunitx}
@@ -42,6 +48,13 @@
 \imagelabelset{
 	outer dist = -0.5 cm
 }
+
+\usepackage{dirtree}
+
+\theoremstyle{plain}
+\newtheorem{example}{Ejemplo}[chapter]
+
+\usepackage{caption}
 
 \renewcommand{\lstlistingname}{Algoritmo}% Listing -> Algorithm
 \renewcommand{\lstlistlistingname}{Lista de \lstlistingname s}% List of Listings -> List of Algorithm
@@ -197,18 +210,18 @@
 \renewcommand{\listfigurename}{Lista de Figuras}
 \renewcommand{\contentsname}{Contenido}
 
-%\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
 \tableofcontents
 
 \cleardoublepage
-% \addcontentsline{toc}{chapter}{Lista de figuras} % para que aparezca en el indice de contenidos
+\addcontentsline{toc}{chapter}{Lista de figuras} % para que aparezca en el indice de contenidos
 \listoffigures % indice de figuras
 
-\cleardoublepage
+% \cleardoublepage
 % \addcontentsline{toc}{chapter}{Lista de tablas} % para que aparezca en el indice de contenidos
-\listoftables % indice de tablas
+% \listoftables % indice de tablas
 
-\cleardoublepage
+% \cleardoublepage
 % \include{Tab_Simbolos/TabSimbolosMSc}
 %\include{Resumen}%\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
 \pagenumbering{arabic}
