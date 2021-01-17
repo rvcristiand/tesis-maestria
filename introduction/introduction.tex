@@ -5,9 +5,9 @@ Los programas de computador comerciales para el análisis y diseño de estructur
 
 En \cite{escamilla1995microcomputadores} se presenta una lista de algunos de estos programas de uso común en América Latina, entre los cuales se encuentra \emph{ETABS} (Three Dimensional Analysis of Building Systems - Extended Version).\\
 
-ETABS es un programa de computador creado por Edward Wilson, Jeffery Hollings y Henry Dovey en 1975. Según \cite{ETABS1975}, este programa de computador fue desarrollado para el análisis estructural lineal de edificios de pórticos y muros a cortante sujetos tanto a cargas estáticas como sísmicas. El edificio es idealizado como un sistema de elementos tipo pórticos y muros a cortante independientes interconectado por losas de entrepiso las cuales son rígidas en su propio plano. \\
+ETABS es un programa de computador creado por Edward Wilson, Jeffery Hollings y Henry Dovey en 1975. Según \cite{ETABS1975}, este programa de computador fue desarrollado para el análisis estructural lineal de edificios de pórticos y muros a cortante sujetos tanto a cargas estáticas como sísmicas. El edificio es idealizado como un sistema de elementos aporticados y muros a cortante independientes interconectado por losas de entrepiso las cuales son rígidas en su propio plano.\\
 
-Este programa es una extensión de \emph{TABS} (Three Dimensional Analysis of  Building Systems) para poder analizar pórticos en tres dimensiones. Según \cite{ETABS1972}, una de las razones para desarrollar TABS fue darle una retroalimentación a los usuarios de los programas \emph{FRMSTC} (Static Load Analysis of High-Rise Buildings), \emph{FRMDYN} (Dynamic Analysis of Multistory Buildings), \emph{LATERAL} y \emph{SOLID SAP} (Static Analysis Program for Three-Dimensional Solid Structures).\\
+Este programa es una extensión de \emph{TABS} (Three Dimensional Analysis of  Building Systems) para poder analizar pórticos tridimensionales. Según \cite{ETABS1972}, una de las razones para desarrollar TABS fue darle una retroalimentación a los usuarios de los programas \emph{FRMSTC} (Static Load Analysis of High-Rise Buildings), \emph{FRMDYN} (Dynamic Analysis of Multistory Buildings), \emph{LATERAL} y \emph{SOLID SAP} (Static Analysis Program for Three-Dimensional Solid Structures).\\
 
 FRMSTC permitía analizar edificios simétricos con pórticos y muros a cortante paralelos sujetos a cargas estáticas y evaluar los modos y las frecuencias. FRMDYN era similar a FRMSTC con la excepción que la carga era la aceleración del terreno debido a un desplazamiento dependiente del tiempo. LATERAL fue una extensión de FRMSTC que permitía analizar linealmente pórticos y muros a cortante que no eran necesariamente paralelos con tres grados de libertad en cada piso. SOLID SAP era un programa general de elementos finitos y tenía una opción que permitía introducir la aproximación de piso rígido. Este programa también tenía la opción de realizar análisis dinámico.\\
 
@@ -29,7 +29,7 @@ En la actualidad, ETABS se encuentra en la versión 18.1.1 y según \cite{ETABS2
   \label{fig:etabs_start_page}
 \end{figure}
 
-A través de múltiples cuadros de diálogo, los cuales son accesibles ya sea a través de la barra de menús, las barras de herramientas, el explorador del modelo, las vistas del modelo o con atajos de teclado, el usuario es capaz de modelar la estructura que desea analizar al describir los materiales, las secciones transversales, los elementos estructurales, las condiciones de apoyo, los diafragmas y las cargas. \\
+A través de múltiples cuadros de diálogo, los cuales son accesibles ya sea a través de la barra de menús, las barras de herramientas, el explorador del modelo, las vistas del modelo o con atajos de teclado, el usuario es capaz de modelar la estructura que desea analizar al describir los materiales, las secciones transversales, los elementos estructurales, las condiciones de apoyo, los diafragmas y las cargas.\\
 
 Según \cite{ETABS2017analysisreferencemanual}, ETABS analiza el modelo usando el motor de análisis \emph{SAPFire}, el cual es común a otros programas de la misma compañia (\emph{SAP2000}, \emph{SAFE} y \emph{CSiBridge}). SAPFire es la última versión de la serie de programas \emph{SAP} y ofrece las siguientes herramientas:
 \begin{itemize}
@@ -42,7 +42,7 @@ Según \cite{ETABS2017analysisreferencemanual}, ETABS analiza el modelo usando e
 \item Fluencia lenta (\emph{creep}), retracción (\emph{shrinkage}) y envejecimiento,
 \item Análisis de pandeo,
 \item Análisis de densidad espectral de potencia y estado estacionario,
-\item Elementos tipo pórtico y laminares, incluyendo el comportamiento de vigas, columnas, cerchas, membranas y placas,
+\item Elementos aporticados y laminares, incluyendo el comportamiento de vigas, columnas, cerchas, membranas y placas,
 \item Elementos tipo cable y tendón,
 \item Elementos bidimensionales planos y elementos sólidos asimétricos,
 \item Elementos sólidos tridimensionales,
@@ -58,20 +58,19 @@ En términos generales, estos programas de computador comerciales cuenta con car
 
 \section{Objetivo}
 
-Desarrollar un programa de computador a código abierto para el análisis de estructuras tridimensionales tipo pórtico sometidas a cargas estáticas.\\
+Desarrollar un programa de computador a código abierto para el análisis lineal de estructuras aporticadas tridimensionales sometidas a cargas estáticas.\\
 
 Con este trabajo se pretende contribuir al ejercicio libre de la profesión del ingeniero estructural y a la enseñanza del análisis de las estructuras.
-
 \subsection{Objetivos específicos}
 
 \begin{itemize}
-\item Desarrollar el ambiente gráfico y la interfaz gráfica de usuario del programa de computador para permitirle al usuario ingresar los datos que describen la estructura, las acciones a las cuales se encuentra sometida y visualizar los resultados del análisis estructural.
 \item Desarrollar el módulo de análisis estructural para calcular el desplazamiento de los nudos, el valor de las reacciones y de las fuerzas internas de los elementos de una estructura sometida a cargas estáticas.
+\item Desarrollar el ambiente gráfico y la interfaz gráfica de usuario del programa de computador para permitirle al usuario ingresar los datos que describen la estructura, las acciones a las cuales se encuentra sometida y visualizar los resultados del análisis estructural.
 \end{itemize}
 
 \section{Metodología}
 
-Se desarrollaron los programas de computador \emph{pyFEM} y \emph{FEM.js}. El primero para analizar estructuras tridimensionales tipo pórtico sometidas a cargas estáticas y el segundo para modelarlas. Esto con el fin que FEM.js pueda ser usado junto con otro programa de computador diferente a pyFEM.\\
+Se desarrollaron los programas de computador \emph{pyFEM} y \emph{FEM.js}. El primero para analizar estructuras aporticadas tridimensionales sometidas a cargas estáticas y el segundo para modelarlas. Esto con el fin que FEM.js pueda ser usado junto con otro programa de computador diferente a pyFEM.\\
 
 Durante el desarrollo de estos programas, así como el de este documento, se utilizó \emph{git} como sistema de control de versiones. Según \cite{chacon2014git}, git es un sistema distribuido de control de versiones que registra los cambios realizados a un conjunto de archivos para coordinar el trabajo entre programadores.\\
 
@@ -97,44 +96,24 @@ pyFEM fue desarrollado en \emph{Python}. Según \cite{lutz2013python}, Python es
   .3 space\_frame.py.
   .3 trusses.py.
 }
-
 \bigskip
-El archivo \verb|LICENCE| contiene la licencia de pyFEM, la cual se presenta a continuación.
+El archivo \verb|LICENCE| contiene la licencia de pyFEM mientras que el archivo \verb|README.md| contiene todas las instrucciones necesarias para ejecutar y usar pyFEM.\\
 
-\begin{quotation}
-  The MIT License\\
-
-  Copyright (c) 2019 pyFEM\\
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\\
-  
-  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\\
-
-  THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-\end{quotation}
-
-El archivo \verb|README.md| contiene todas las instrucciones necesarias para ejecutar y usar pyFEM.\\
-
-% TODO: hacer el README.md
-% Como se instala el programa
-
-La carpeta \emph{pyFEM} contiene los archivos \verb|classtools.py|, \verb|core.py| y \verb|primitives.py| los cuales contienen las instrucciones para analizar los modelos. La extensión \emph{py} se usa para indicar que los archivos son programas de Python.\\
+La carpeta \emph{pyFEM} contiene los archivos \verb|classtools.py|, \verb|core.py| y \verb|primitives.py|, los cuales contienen las instrucciones para analizar los modelos. La extensión \emph{py} se usa para indicar que los archivos son programas de Python.\\
 
 En el archivo \verb|classtools.py| se encuentran las \emph{clases} \verb|UniqueInstances| y \verb|AttrDisplay|, la primera para evitar que se creen \emph{objetos} de una misma clase con la misma información y la segunda para generar una representación conveniente de los objetos.\\
 
 En el archivo \verb|primitives.py| se encuentran varias clases, entre ellas \verb|Material|, \verb|Section|, \verb|Joint|, \verb|Frame|, \verb|Support|, \verb|LoadPattern|, etc., las cuales permiten describir los diferentes atributos del modelo.\\
 
-En el archivo \verb|core.py| se encuentra la clase \verb|Structure| la cual permite describir estructuras para ser analizados. Para crear objetos de esta clase se debe llamar la clase indicando los grados de libertad a tener en cuenta. A partir de un objeto de esta clase es posible describir el modelo de la estructura al agregar materiales, secciones transversales, nodos, elemenetos tipo pórtico, apoyos, patrones de carga, cargas en los nodos y cargas distribuidas en los elementos tipo pórtico.\\
+En el archivo \verb|core.py| se encuentra la clase \verb|Structure| la cual permite describir estructuras para ser analizados. Para crear objetos de esta clase se debe llamar la clase indicando los grados de libertad a tener en cuenta en el análisis. A partir de un objeto de esta clase es posible describir el modelo de la estructura al agregar materiales, secciones transversales, nodos, elemenetos aporticados, apoyos, patrones de carga, cargas en los nodos y cargas distribuidas en los elementos aporticados.\\
 
-Los archivos \verb|example_1.json|, \verb|example_2.json| y \verb|example_3.json| almacenan los modelos de tres de los ejemplos presentados en \cite{escamilla1995microcomputadores} que han sido analizados con pyFEM. La extensión \emph{json} se usa para indicar que los archivos tienen formato \emph{JSON} (de sus siglas en inglés \emph{JavaScript Object Notation}), el cual es un formato sencillo para el intercambio de datos. El modelo es descrito de tal manera que puede ser interpretado por FEM.js para generar su representación en una escena tridimensional. \\
+Los archivos \verb|example_1.json|, \verb|example_2.json| y \verb|example_3.json| almacenan los modelos de tres de los ejemplos presentados en \cite{escamilla1995microcomputadores} que han sido analizados con pyFEM. La extensión \emph{json} se usa para indicar que los archivos tienen formato \emph{JSON} (de sus siglas en inglés \emph{JavaScript Object Notation}), el cual es un formato sencillo para el intercambio de datos. El modelo es descrito de tal manera que puede ser interpretado por FEM.js para generar su representación en una escena tridimensional.\\
 
 En el ejemplo \ref{ej:cercha-plana} se presenta la solución a un ejercicio de \cite{escamilla1995microcomputadores} usando pyFEM. En el capítulo \ref{cha:pyFEM} se presentan las rutinas que ejecuta pyFEM para solucionar los modelos estructurales.\\
-% \pagebreak
 
 \begin{ejemplo}
   \label{ej:cercha-plana}
-  Resuelva completamente la cercha mostrada por el método matricial de los desplazamientos. El material es acero estructural con $ E = 2040\; t / cm^2 $. Las áreas están dadas entre paréntesis en $ cm^2 $.\\
-  
+  Resuelva completamente la cercha mostrada por el método matricial de los desplazamientos. El material es acero estructural con $ E = 2040\; t / cm^2 $. Las áreas están dadas entre paréntesis en $ cm^2 $.\\  
   \begin{center}
     \begin{tikzpicture}
       % Points
@@ -201,7 +180,7 @@ En el ejemplo \ref{ej:cercha-plana} se presenta la solución a un ejercicio de \
   \item materiales,
   \item secciones transversales,
   \item nodos,
-  \item elementos tipo pórtico,
+  \item elementos aporticados,
   \item apoyos, patrones de carga y
   \item cargas en los nodos,
   \end{inparaenum}
@@ -217,9 +196,8 @@ En el ejemplo \ref{ej:cercha-plana} se presenta la solución a un ejercicio de \
   \item encontrar los desplazamientos de los nodos para cada patrón de carga, 
   \item encontrar las reacciones en los apoyos para cada patrón de carga y
   \item guardar la solución en los nodos y en los apoyos para cada patrón de carga.
-  \end{inparaenum} \\
+  \end{inparaenum}
   
-  % \begin{minipage}{\textwidth}
   \begin{lstlisting}[language=Python,caption=Ingreso de los datos del modelo de la estructura a \textit{pyFEM}.,label=alg:cercha_plana, frame=single]
 # create the model
 model = Structure(ux=True, uy=True)
@@ -259,7 +237,6 @@ model.add_load_at_joint('point loads' , 4, fy=-20)
 
 # solve the problem
 model.solve()
-
 print(model)
 
 # export the model
@@ -271,7 +248,7 @@ model.export('example_1.json')
 
   Una vez se establecen los grados de libertad de los nodos se ensambla la matriz de rigidez del modelo de la estructura. Este proceso consiste en calcular una a una las matrices de rigidez de los elementos ensamblandolas en la matriz de rigidez del modelo.\\
 
-  El usuario puede consultar las matrices de rigidez de cada uno de los elementos del modelo de la estructura. En \ref{eq:matriz-rigidez-elemento-portico-coordenadas-locales} se presenta la matriz de rigidez en coordenadas locales del elemento 1-3, la cual se obtiene mediante la instrucción \verb|model.frames['1-3'].get_local_stiffness_matrix()|.\\
+  El usuario puede consultar las matrices de rigidez de cada uno de los elementos del modelo de la estructura. En \eqref{eq:matriz-rigidez-elemento-portico-coordenadas-locales} se presenta la matriz de rigidez en coordenadas locales del elemento 1-3, la cual se obtiene mediante la instrucción \verb|model.frames['1-3'].get_local_stiffness_matrix()|.\\
 
   \begin{equation}
     \label{eq:matriz-rigidez-elemento-portico-coordenadas-locales}
@@ -284,7 +261,7 @@ model.export('example_1.json')
     \si[per-mode=symbol]{\tonne\per\meter}
   \end{equation}
 
-  Así mismo, el usuario puede consultar las matrices de rotación de cada uno de los elementos del modelo. En \ref{eq:matriz-rotacion} se presenta la matriz de rotación del elemento 1-3, la cual se obtiene mendiante la instrucción \verb|model.frames['1-3'].get_rotation_matrix()|.\\
+  Así mismo, el usuario puede consultar las matrices de rotación de cada uno de los elementos del modelo. En \eqref{eq:matriz-rotacion} se presenta la matriz de rotación del elemento 1-3, la cual se obtiene mendiante la instrucción \verb|model.frames['1-3'].get_rotation_matrix()|.\\
 
   \begin{equation}
     \label{eq:matriz-rotacion}
@@ -296,7 +273,7 @@ model.export('example_1.json')
     \end{bNiceArray}
   \end{equation}
 
-  El usuario tambien puede consultar las matrices de rigidez en coordenadas globales de cada uno de los elementos del modelo de la estructura. En \ref{eq:matriz-rigidez-elemento-portico-coordenadas-globales} se presenta la matriz de rigidez en coordenadas globales del elemento 1-3, con sus respectivos grados de libertad, la cual se obtiene mediante la instrucción \verb|model.frames['1-3'].get_global_stiffness_matrix()|.
+  El usuario tambien puede consultar las matrices de rigidez en coordenadas globales de cada uno de los elementos del modelo de la estructura. En \eqref{eq:matriz-rigidez-elemento-portico-coordenadas-globales} se presenta la matriz de rigidez en coordenadas globales del elemento 1-3, con sus respectivos grados de libertad, la cual se obtiene mediante la instrucción \verb|model.frames['1-3'].get_global_stiffness_matrix()|.
 
   \begin{equation}
     \label{eq:matriz-rigidez-elemento-portico-coordenadas-globales}
@@ -313,7 +290,7 @@ model.export('example_1.json')
     \si[per-mode=symbol]{\tonne\per\meter}
   \end{equation}
 
-  En \ref{eq:k_1_4}, \ref{eq:k_3_2} y \ref{eq:k_4_3} se presentan las matrices de rigidez en coordenadas globales de los elementos 1-4, 3-2 y 4-3 de la estructura las cuales se obtienen con instrucciones similares a la anterior.\\
+  En \eqref{eq:k_1_4}, \eqref{eq:k_3_2} y \eqref{eq:k_4_3} se presentan las matrices de rigidez en coordenadas globales de los elementos 1-4, 3-2 y 4-3 de la estructura las cuales se obtienen con instrucciones similares a la anterior.\\
 
   \begin{equation}
     \begin{bNiceArray}{CCCCC}[
@@ -360,7 +337,7 @@ model.export('example_1.json')
     \si[per-mode=symbol]{\tonne\per\meter}
   \end{equation}
 
-  El usuario también puede consultar la matriz de rigidez del modelo de la estructura mediante la instrucción \verb|structure.get_stiffness_matrix()|. En \ref{eq:k_global} se presenta la matriz de rigidez de la estructura.\\
+  El usuario también puede consultar la matriz de rigidez del modelo de la estructura mediante la instrucción \verb|structure.get_stiffness_matrix()|. En \eqref{eq:k_global} se presenta la matriz de rigidez de la estructura.\\
 
   \begin{equation}
     \begin{bNiceArray}{CCCCCCCC}[
@@ -381,7 +358,7 @@ model.export('example_1.json')
     \si[per-mode=symbol]{\tonne\per\meter}
   \end{equation}
 
-  Una vez se ensambla la matriz de rigidez del modelo se modifica para tener en cuenta las condiciones de apoyo. Este proceso consiste en modificar las filas y las columnas asociadas a los grados de libertad restringidos. En \ref{eq:k_global_support_applied} se presenta la matriz de rigidez sujeta a las condiciones de apoyo del modelo de la estructura la cual se obtiene mediante la instrucción \verb|model.get_stiffness_matrix_with_support()|.\\
+  Una vez se ensambla la matriz de rigidez del modelo se modifica para tener en cuenta las condiciones de apoyo. Este proceso consiste en modificar las filas y las columnas asociadas a los grados de libertad restringidos. En \eqref{eq:k_global_support_applied} se presenta la matriz de rigidez sujeta a las condiciones de apoyo del modelo de la estructura la cual se obtiene mediante la instrucción \verb|model.get_stiffness_matrix_with_support()|.\\
 
   \begin{equation}
     \label{eq:k_global_support_applied}
@@ -404,7 +381,7 @@ model.export('example_1.json')
 
   Una vez se obtiene la matriz de rigidez modificada del modelo de la estructura se resuelve para cada uno de los patrones de carga.\\
 
-  Así como se deben encontrar las matrices de rigidez de cada uno de los elementos del modelo de la estructura para posteriormente ensamblarlas, se debe encontrar la acción en los nodos de cada carga. En \ref{eq:f_global} se presenta el vector de fuerzas nodales del modelo para el patrón de carga \emph{point loads} mediante la instrucción \verb|structure.load_patterns['point loads'].get_f()|.\\
+  Así como se deben encontrar las matrices de rigidez de cada uno de los elementos del modelo de la estructura para posteriormente ensamblarlas, se debe encontrar la acción en los nodos de cada carga. En \eqref{eq:f_global} se presenta el vector de fuerzas nodales del modelo para el patrón de carga \emph{point loads} mediante la instrucción \verb|structure.load_patterns['point loads'].get_f()|.\\
 
   \begin{equation}
     \label{eq:f_global}
@@ -426,7 +403,7 @@ model.export('example_1.json')
   \bigskip
   Obtenido el vector de fuerzas para dicho patrón de carga se imponen las condiciones de apoyo del modelo de la estructura. Debido a que los desplazamiento en los apoyos son iguales a cero el vector de fuerzas en los nodos no varia.\\
 
-  Al contar con la matriz de rigidez y el vector de fuerzas en los nodos, ambos modificados por las condiciones de apoyo, se calculan los desplazamientos y las reacciones. En \ref{eq:u_point_loads} y \ref{eq:f_point_loads_solution} se presentan el vector de desplazamientos y el vector de fuerzas en los nodos del modelo de la estructura para el patrón de carga \textit{point loads}, los cuales son iguales a los presentados en \cite{escamilla1995microcomputadores}.
+  Al contar con la matriz de rigidez y el vector de fuerzas en los nodos, ambos modificados por las condiciones de apoyo, se calculan los desplazamientos y las reacciones. En \eqref{eq:u_point_loads} y \eqref{eq:f_point_loads_solution} se presentan el vector de desplazamientos y el vector de fuerzas en los nodos del modelo de la estructura para el patrón de carga \textit{point loads}, los cuales son iguales a los presentados en \cite{escamilla1995microcomputadores}.
 
   \begin{equation}
     \label{eq:u_point_loads}
@@ -705,25 +682,11 @@ FEM.js fue desarrollado en \emph{Three.js}. Según \cite{dirksen2015threejs}, Th
   
 \bigskip
 
-El archivo \verb|LICENCE| contiene la licencia de FEM.js, la cual se presenta a continuación.
-
-\begin{quotation}
-  THE MIT License\\
-
-  Copyright (c) 2020 FEM.js\\
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\\
-  
-  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\\
-
-  THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-\end{quotation}
-
-El archivo \verb|README.md| contiene todas las instrucciones necesarias para ejecutar y usar FEM.js.\\
+El archivo \verb|LICENCE| contiene la licencia de FEM.js mientras que el archivo \verb|README.md| contiene todas las instrucciones necesarias para ejecutar y usar FEM.js.\\
 
 El archivo \verb|index.html| define la estructura de la página web de FEM.js. En la \emph{etiqueta} \verb|head| se define la ubicación los archivos \verb|three.js|, \verb|CCS2Renderer.js|, \verb|OrbitControls.js|, \verb|dat.gui.min.js|, \verb|stats.js|, el estilo de la página según el archivo \verb|style.css| y el \emph{módulo} \verb|main.js|. En la etiqueta \verb|body| se definen las secciones \verb|renderer-output| y \verb|console|, para mostrar la escena tridimensional y recibir las instrucciones del usuario respectivamente (véase la figura \ref{fig:FEM.js-running}).\\
 
-Los archivos \verb|three.js|, \verb|CCS2Renderer.js| y \verb|OrbitControls.js| son necesarios para renderizar gráficos con WebGL, asociar objetos de la escena con etiquetas html y manipular la cámara. Estos archivos hacen parte del repositorio del proyecto three.js alojado en GitHub (\url{https://github.com/mrdoob/three.js/}).\\
+Los archivos \verb|three.js|, \verb|CCS2Renderer.js| y \verb|OrbitControls.js| son necesarios para renderizar gráficos con WebGL, asociar objetos de la escena con etiquetas html y manipular la cámara. Estos archivos hacen parte del repositorio del proyecto Three.js alojado en GitHub (\url{https://github.com/mrdoob/three.js/}).\\
 
 Los archivos \verb|dat.gui.min.js| y \verb|stats.js| permiten crear interfaces gráficas de usuario que cambian el valor de las variables y un monitor del desemepeño del código respectivamente. Estos archivos hacen parte de los repositorios \emph{dat.gui} y \emph{stats.js} alojados en GitHub (\url{https://github.com/dataarts/dat.gui} y \url{https://github.com/mrdoob/stats.js/}).\\
 
@@ -883,7 +846,7 @@ En la sección \verb|axes| se definen tres colores los cuales se asocian a los e
 
 En la sección \verb|joint| se define la visibilidad, el tamaño, el color, la transparencia y la opacidad de los nodos del modelo. Así mismo se define la visibilidad de los \emph{labels} de los nodos.\\
 
-En la sección \verb|frame| se define la visibilidad, la vista (\emph{extruida} o en \emph{palillo}), el tamaño, el color, la transparencia y la opacidad de los elementos tipo pórtico del modelo. Así mismo se define la visibilidad de los \emph{labels} de estos elementos y una sección llamada \verb|axes|, similar a la que se encuentra en la sección \verb|model|, con la diferencia que esta establece la visibilidad y el tamaño de los ejes locales de los elementos tipo pórtico. En la figura \ref{fig:dat.gui-frame} se presenta el modelo del archivo \verb|example_3.json| en \emph{estructura de palillo}.\\
+En la sección \verb|frame| se define la visibilidad, la vista (\emph{extruida} o en \emph{palillo}), el tamaño, el color, la transparencia y la opacidad de los elementos aporticados del modelo. Así mismo se define la visibilidad de los \emph{labels} de estos elementos y una sección llamada \verb|axes|, similar a la que se encuentra en la sección \verb|model|, con la diferencia que esta establece la visibilidad y el tamaño de los ejes locales de los elementos aporticados. En la figura \ref{fig:dat.gui-frame} se presenta el modelo del archivo \verb|example_3.json| en \emph{estructura de palillo}.\\
 
 \begin{figure}[ht]
   \centering
