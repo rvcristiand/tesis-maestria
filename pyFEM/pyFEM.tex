@@ -1,7 +1,606 @@
 \chapter{pyFEM}
 \label{cha:pyFEM}
 
-En la figura \ref{fig:space-frame} se presenta un elemento \emph{i} tipo \emph{pórtico} con sus nodos \emph{j} y \emph{k} empotrados. El sistema de coordenadas locales del elemento tiene como origen el nodo \emph{j}. El eje $ x $ coincide con el eje centroidal del elemento y es positivo en el sentido del nodo \emph{j} al nodo \emph{k}. Los ejes $ y $ y $ z $ son los ejes principales del elemento de manera que los planos $ xy $ y $ zx $ son los planos principales de flexión. Se asume que el centro de cortante y el centroide del elemento coinciden de tal forma que la flexión y la torsión se presentan una independiente de la otra. Los grados de libertad se numeran del 1 al 12, empezando por las translaciones y las rotaciones del nodo \emph{j}, tomados en orden $ x $, $ y $, $ z $ respectivamente.
+pyFEM es un programa de computador desarrollado en Python para analizar linealmente estructuras aporticadas tridimensionales sometidas a cargas estáticas. Una copia del programa se encuentra alojada en la página web de GitHub \url{https://github.com/rvcristiand/pyFEM}.\\
+
+Los principales archivos del programa son:\\
+
+\dirtree{%
+  .1 pyFEM/.
+  .2 LICENSE.
+  .2 README.md.
+  .2 example\_1.json.
+  .2 example\_2.json.
+  .2 example\_3.json.
+  .2 pyFEM/.
+  .3 classtools.py.
+  .3 core.py.
+  .3 primitives.py.
+  .2 test/.
+  .3 space\_frame.py.
+  .3 trusses.py.
+}
+\bigskip
+El usuario puede generar objetos de la clase \verb|Structure|, definida en el archivo \verb|core.py|, para describir y analizar linealmente modelos de estructuras aporticadas tridimensionales sometidas a fuerzas estáticas. En la figura \ref{fig:pyFEM-Structure} se presentan los métodos y atributos de esta clase.\\
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node (clase) [class] {\textbf{Structure}};
+
+    % attrs
+    \node (atributos) [left=of clase, xshift=-1cm]{};
+
+    % grados de libertad
+    \matrix [
+    matrix of nodes,
+    below=of atributos,
+    nodes={
+      anchor=center
+    }] (gradosLibertad) {
+      \node {ux,}; & \node {uy,}; & \node {uz,};\\
+      \node {rx,}; & \node {ry,}; & \node {rz,};\\
+    };
+
+    % diccionarios
+    \matrix [
+    matrix of nodes,
+    below=of gradosLibertad,
+    yshift=1cm,
+    nodes={
+      anchor=center
+    }] (diccionarios) {      
+      \node {materials,};\\
+      \node {sections,};\\
+      \node {joints,};\\      
+      \node {frames,};\\
+      \node {supports,};\\      
+      \node {load\_patterns,};\\
+    };
+
+    % resultados
+    \matrix [
+    matrix of nodes,
+    below=of diccionarios,
+    yshift=1cm,
+    nodes={
+      anchor=center
+    }] (resultados) {      
+      \node {displacements,};\\
+      \node {reactions};\\
+    };
+    
+    % methods
+    \node (aux2) [right=of clase, xshift=1cm]{};
+    \matrix [
+    matrix of nodes,
+    below=of aux2,
+    nodes={
+      anchor=center
+    }] (metodos1) {
+      \node {add\_material(),}; & \node {add\_section(),};\\
+      \node {add\_rectangular\_section(),}; & \node {add\_joint(),};\\
+      \node {add\_frame(),}; & \node {add\_support(),};\\
+      \node {add\_load\_pattern(),}; & \node {add\_load\_at\_joint(),};\\
+    };
+
+    \matrix [
+    matrix of nodes,
+    below=of metodos1,
+    yshift=1cm,
+    nodes={
+      anchor=center
+    }] (metodos2) {
+      \node {add\_distributed\_load(),};\\
+      \node {get\_flag\_active\_joint\_displacements(),};\\
+      \node {get\_number\_active\_joint\_displacements(),};\\
+    };
+    
+    \matrix [
+    matrix of nodes,
+    below=of metodos2,
+    yshift=1cm,
+    nodes={
+      anchor=center
+    }] (metodos3) {
+      \node {get\_number\_joints(),}; & \node {get\_number\_frames(),};\\
+      \node {set\_indexes(),}; & \node {get\_stiffness\_matrix(),};\\
+    };
+
+    \matrix [
+    matrix of nodes,
+    below=of metodos3,
+    yshift=1cm,
+    nodes={
+      anchor=center
+    }] (metodos4) {
+      \node {get\_stiffness\_matrix\_with\_support(),};\\
+      \node {solve\_load\_pattern(),};\\
+      \node {set\_load\_pattern\_displacements(),};\\
+    };
+
+    \matrix[
+    matrix of nodes,
+    below=of metodos4,
+    yshift=1cm,
+    nodes={
+      anchor=center
+    }] (metodos5) {
+      \node {set\_load\_pattern\_reactions(),}; & \node {solve(),};\\
+    };
+    
+    \node [below=of metodos5, yshift=1cm] (metodos6) {export()};
+    
+    \node [atributos, fit=(gradosLibertad) (diccionarios) (resultados)] {};
+    \node [metodos, fit=(metodos1) (metodos2) (metodos3) (metodos4) (metodos5) (metodos6)] {};
+
+    \draw[myarrow] (gradosLibertad.north) -- ++(0,0) |- ( clase.west);
+    \draw[myarrow] (metodos1.north) -- ++(0,0) |- (clase.east);
+  \end{tikzpicture}
+  \caption{Métodos y atributos de la clase \texttt{Structure}.}
+  \label{fig:pyFEM-Structure}
+\end{figure}
+
+El constructor de la clase \verb|Structure| recibe seis argumentos de entrada opcionales, uno para cada grado de libertad (tres translaciones y tres rotaciones), los cuales tienen \verb|False| como valor por defecto. Cuando el usuario crea un objeto de esta clase debe indicar qué grados de libertad quiere tener en cuenta para analizar el modelo.\\
+
+En el algoritmo \ref{alg:Structure-init} se presenta el constructor de la clase \verb|Structure|. El constructor de la clase le asigna a los atributos \verb|ux|, \verb|uy|, \verb|uz|, \verb|rx|, \verb|ry| y \verb|rz| los respectivos valores de los argumentos de entrada. A los demás atribututos les asigna un diccionario vacío.\\
+\pagebreak
+\begin{lstlisting}[language=Python,caption=Constructor de la clase \texttt{Structure}.,label=alg:Structure-init, frame=single]
+def __init__(self,ux=False,uy=False,uz=False,rx=False,ry=False,rz=False):
+    """
+    Instantiate a Structure object
+
+    Parameters
+    ----------
+    ux : bool
+        Flag translaction along 'x' axis activate.
+    uy : bool
+        Flag translaction along 'y' axis activate.
+    uz : bool
+        Flag translaction along 'z' axis activate.
+    rx : bool
+        Flag rotation around 'x' axis activate.
+    ry : bool
+        Flag rotation around 'y' axis activate.
+    rz : bool
+        Flag rotation around 'z' axis activate.
+    """
+    # flag active joint displacements
+    self.ux = ux
+    self.uy = uy
+    self.uz = uz
+    self.rx = rx
+    self.ry = ry
+    self.rz = rz
+
+    # dict materials and sections
+    self.materials = {}
+    self.sections = {}
+
+    # dict joints and frames
+    self.joints = {}
+    self.frames = {}
+
+    # dict supports
+    self.supports = {}
+
+    # dict load patterns
+    self.load_patterns = {}
+
+    # dict displacements
+    self.displacements = {}
+
+    # dict reactions
+    self.reactions = {}
+\end{lstlisting}
+\bigskip
+El usuario puede describir el modelo con los objetos tipo \verb|Structure| agregándole objetos que representan materiales, secciones transversales, nodos, elementos aporticados, apoyos, patrones de carga, fuerzas aplicadas en los nodos y cargas distribuidas en los elementos aporticados, mediante los métodos que comienzan con \emph{add}.\\
+
+Estos métodos reciben uno o varios argumentos de entrada obligatorios y una serie de argumentos de entrada opcionales para crear los objectos y almacenarlos en los respectivos diccionarios del objeto tipo \verb|Structure|.\\
+
+Dichos métodos son similares entre sí, solo cambia el diccionario al cual se le está agregando la nueva entrada y el objecto que se está creando. Por ejemplo, en el algoritmo \ref{alg:Structure-add_material} se presenta el método \verb|add_material()|. Los argumentos de entrada 
+% opcionales
+\verb|*args| y \verb|**kwargs| son pasados al constructor de la clase \verb|Material| para crear un objeto tipo \verb|Material|, mientras que el argumento \verb|key| es usado como llave para almacenar dicho objeto en el diccionario \verb|materials|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{add\_material()} de la clase \texttt{Structure}.,label=alg:Structure-add_material, frame=single]
+def add_material(self, key, *args, **kwargs):
+    """
+    Add a material
+
+    Parameters
+    ----------
+    key : immutable
+        Material's key.
+    """
+    self.materials[key] = Material(*args, **kwargs)
+\end{lstlisting}
+\bigskip
+En el caso de los métodos \verb|add_section()|, \verb|add_rectangular_section()|, \verb|add_joint()| y \verb|add_load_pattern()|, el diccionario ya no es \verb|materials| sino \verb|sections|, \verb|joints| o \verb|load_| \verb|patterns|, según corresponda, y el objeto a crear ya no es de tipo \verb|Material| sino de tipo \verb|Section|, \verb|RectangularSection|, \verb|Joint| o \verb|LoadPattern|, respectivamente.\\
+
+El método \verb|add_frame()| permite agregar objetos tipo \verb|Frame| de manera similar a como lo hace el método \verb|add_material()|, con la diferencia que este método recibe como argumentos de entrada las llaves con las que fueron creados el nodo cercano, el nodo lejano, el material y la sección transversal.\\
+
+En el algoritmo \ref{alg:Structure-add_frame} se presenta el método \verb|add_frame()|. Las llaves del material, de la sección transversal y de los nodos se utilizan para recuperan los objetos relacionados en los diferentes diccionarios del objeto tipo \verb|Structure| para crea el objeto tipo \verb|Frame|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{add\_frame()} de la clase \texttt{Structure}.,label=alg:Structure-add_frame, frame=single]
+def add_frame(self, key, key_joint_j, key_joint_k, key_material, key_section):
+    """
+    Add a frame
+
+    Parameters
+    ----------
+    key : immutable
+        Frame's key.
+    key_joint_j : immutable
+        Joint j's key.
+    key_joint_k : immutable
+        Joint k's key.
+    key_material : immutable
+        Material's key.
+    key_section : immutable
+        Section's key.
+    """
+    self.frames[key] = Frame(self.joints[key_joint_j], self.joints[key_joint_k], self.materials[key_material], self.sections[key_section])
+\end{lstlisting}
+\bigskip
+El método \verb|add_support()| es similar a los anteriores, con la diferencia que los objeto tipo \verb|Joint| son usados como llaves para almacenar los objeto tipo \verb|Support|, tal como se presenta en el algoritmo \ref{alg:Structure-add_support}.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{add\_support()} de la clase \texttt{Structure}.,label=alg:Structure-add_support, frame=single]
+def add_support(self, key_joint, *args, **kwargs):
+    """
+    Add a support
+
+    Parameters
+    ----------
+    key_joint : immutable
+        Joint's key.
+    """
+    self.supports[self.joints[key_joint]] = Support(*args, **kwargs)
+\end{lstlisting}
+\bigskip
+Por su parte, los métodos \verb|add_load_at_joint()| y \verb|add_distributed_load()| reciben dos argumentos de entrada obligatorios y una serie de argumentos de entrada  opcionales. El primer argumento de entrada obligatorio es la llave con la que se creó el objeto tipo \verb|LoadPattern| y el segundo es la llave con el que se creó el objeto tipo \verb|Joint| o el objeto tipo \verb|Frame|, respectivamente.\\
+
+En el algoritmo \ref{alg:Structure-add_load_at_joint} se presenta el método \verb|add_load_at_joint()|. Con la llave del patrón de carga se recupera el objeto tipo \verb|LoadPattern| mientras que con la llave del nodo se recupera el objeto tipo \verb|Joint|. El objeto tipo \verb|Joint| y los demás argumentos de entrada opcionales son pasados al método \verb|add_point_load_at_joint()|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{add\_load\_at\_joint()} de la clase \texttt{Structure}.,label=alg:Structure-add_load_at_joint, frame=single]
+def add_load_at_joint(self, key_load_pattern, key_joint, *args, **kwargs):
+    """
+    Add a point load at joint
+
+    Parameters
+    ----------
+    key_load_pattern : immutable
+        Load pattern's key.
+    key_joint : immutable
+        Joint's key,
+    """
+    self.load_patterns[key_load_pattern].add_point_load_at_joint(self.joints[key_joint], *args, **kwargs)
+\end{lstlisting}
+\bigskip
+En el caso del método \verb|add_distributed_loads()|, el objeto tipo \verb|Frame| y los demás argumentos de entrada opcionales son pasados al método \verb|add_distributed_load()| del objeto tipo \verb|LoadPattern|.\\
+
+Cuando el usuario termina de describir el modelo puede ejecutar el método \verb|solve()| de la clase \verb|Structure| para analizarlo. pyFEM soluciona la estructura sometida a los diferentes patrones de carga, almacenando los resultados de los vectores de desplazamientos y fuerzas en los nodos en los atributos \verb|displacements| y \verb|reactions|, respectivamente.\\
+
+% Los métodos \verb|set_load_pattern_displacements()| y \verb|set_load_pattern_reactions()| reciben como argumentos de entrada el objeto tipo \verb|LoadPattern|, el diccionario generado por el método \verb|set_indexes()| y los resultados del análisis del modelo sometido a las cargas definidas en el objeto tipo \verb|LoadPattern|.\\
+
+% En el algoritmo \ref{alg:Structure-set_load_pattern_displacements} se presenta el método \verb|set_load_pattern_displacements()|. El método genera una nueva entrada en el diccionario \verb|displacements|, usando como llave el objeto tipo \verb|LoadPattern|, para almacenar el diccionario \verb|load_pattern_displacements|.\\
+
+% Para cada nodo pyFEM genera una entrada en el diccionario \verb|load_pattern_displacements|, donde las llaves son los objeto tipo \verb|Joint| y los valores son objetos tipo \verb|Displacement|. Los objetos tipo \verb|Displacement| son generados con los desplazamientos del respectivo nodo, al recuperar sus grados de libertad del diccionario \verb|indexes| y con ellos extraer los respectivos desplazamientos del \emph{array} \verb|u|.\\
+
+% \begin{lstlisting}[language=Python,caption=Método \texttt{set\_load\_pattern\_displacements()} de la clase \texttt{Structure}.,label=alg:Structure-set_load_pattern_displacements, frame=single]
+% def set_load_pattern_displacements(self, load_pattern, indexes, u):
+%     """
+%     Set load pattern displacements
+
+%     Parameters
+%     ----------
+%     load_pattern : LoadPatterns
+%         Load pattern.
+%     indexes : dict
+%         Key value pairs joints and indexes.
+%     u : ndarray
+%         Displacements.
+%     """
+%     flag_joint_displacements = self.get_flag_active_joint_displacements()
+
+%     load_pattern_displacements = {}
+
+%     for joint in self.joints.values():
+%         joint_indexes = indexes[joint]
+%         displacements = flag_joint_displacements.astype(float)
+%         displacements[flag_joint_displacements] = u[joint_indexes, 0]
+%         load_pattern_displacements[joint] = Displacement(*displacements)
+
+%     self.displacements[load_pattern] = load_pattern_displacements
+% \end{lstlisting}
+% \bigskip
+% En el caso del método \verb|set_load_pattern_reactions()|, en vez de generarse una nueva entrada en el diccionario \verb|displacements|, ésta se genera en el diccionario \verb|reactions|. Esta nueva entrada es un diccionario que relaciona los objetos tipo \verb|Joint| con las reacciones en los apoyos de la estructura, mediante objetos tipo \verb|Reaction|.\\
+
+En las siguientes secciones se presenta la implementación de las clases con las que el usuario puede describir el modelo (\verb|Material|, \verb|Section|, \verb|Joint|, etc.) y después la implementación de los demás métodos de la clase \verb|Structure|.\\
+
+\section{Clases}
+
+Además de la clase \verb|Structure|, definida en el archivo \verb|core.py|, pyFEM define otras clases en los archivos \verb|primitives.py| y \verb|classtools.py|.\\
+
+En el archivo \verb|primitives.py| se definen todas las clases que permiten describir el modelo, es decir:
+
+\begin{multicols}{2}
+  \setlength{\columnseprule}{0pt}
+  \begin{itemize}
+  \item \verb|Material|,
+  \item \verb|Section|,
+  \item \verb|RectangularSection|,
+  \item \verb|Joint|,
+  \item \verb|Frame|,
+  \item \verb|Support|,
+  \item \verb|LoadPattern|,
+  \item \verb|PointLoad|,
+  \item \verb|DistributedLoad|,
+  \item \verb|Displacement|,
+  \item \verb|Reaction|.
+  \end{itemize}
+\end{multicols}
+
+En el archivo \verb|classtools.py| se define la clase \verb|AttrDisplay| y la \emph{metaclase} \verb|UniqueInstance|. La clase \verb|AttrDisplay| implementa una representación de los objetos más cómoda para los usuarios, mientras que la metaclase \verb|UniqueInstance| no permite crear objetos con los mismos atributos de otros objetos de la misma clase.\\
+
+A continuación se presenta la implementación de todas las clases de pyFEM.
+
+\subsection{Material}
+La clase \verb|Material| representa un material líneal elástico al definir los valores del módulo de Young y del módulo a cortante.\\
+
+En el algoritmo \ref{alg:Material} se presenta la implementación de la clase \verb|Material|. Se asigna la tupla \verb|('E', 'G')| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia. Esto como mecánismo de optimización.\\
+
+Según \cite{lutz2013python}, asignar un diccionario en el espacio de nombres para cada objeto instanciado puede ser costoso, en términos de memoria, si muchas instancias son creadas y solo se requiere un par de atributos. Para ahorrar memoria, en lugar de asignar un diccionario por instancia, Python reserva el espacio suficiente en cada instancia para guardar un valor por cada atributo del \emph{slot}.\\
+
+El constructor de la clase recibe los argumentos de entrada \verb|modulus_elasticity| y \verb|shearing_| \verb|modulus_elasticity|, los cuales tienen $ 0 $ como valor por defecto. Estos valores son pasados a los atributos \verb|E| y \verb|G| del objeto tipo \verb|Material| respectivamente.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{Material} implementada en el archivo \texttt{primitives.py}.,label=alg:Material, frame=single]
+class Material(AttrDisplay):
+    """
+    Linear elasic material
+
+    Attributes
+    ----------
+    E : float
+        Young's modulus.
+    G : float
+        Shear modulus.
+    """
+    __slots__ = ('E', 'G')
+
+    def __init__(self, modulus_elasticity=0, shearing_modulus_elasticity=0):
+        """
+        Instantiate a Material object
+
+        Parameters
+        ----------
+        modulus_elasticity : float
+            Young's modulus.
+        shearing_modulus_elasticity : float
+            Shear modulus.
+        """
+        self.E = modulus_elasticity
+        self.G = shearing_modulus_elasticity  
+\end{lstlisting}
+\bigskip
+\subsection{Section}
+La clase \verb|Section| representa la sección transversal de los elementos aporticados de manera general, al definir los valores del área transversal, de la constante de torsión y de las inercias principales alrededor de los ejes principales.\\
+
+En el algoritmo \ref{alg:Section} se presenta la implementación de la clase \verb|Section|. Así como se asignó una tupla al atributo \verb|__slots__| de la clase \verb|Material|, como mecánismo de optimización, se asigna una tupla al atributo \verb|__slots__| de la clase \verb|Section| con los elementos \verb|'A'|, \verb|'Ix'|, \verb|'Iy'| y \verb|'Iz'|.\\
+
+El constructor de la clase recibe los argumentos de entrada \verb|area|, \verb|torsion_constant|, \verb|moment_| \verb|inertia_y| y \verb|moment_inertia_z|, los cuales tienen $ 0 $ como valor por defecto. Estos valores son pasados a los atributos \verb|A|, \verb|Ix|, \verb|Iy| y \verb|Iz|, respectivamente.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{Section} implementada en el archivo \texttt{primitives.py}.,label=alg:Section, frame=single]
+class Section(AttrDisplay):
+    """
+    Cross-sectional area
+
+    Attributes
+    ----------
+    A : float
+        Cross-sectional area.
+    Ix : float
+        Inertia around axis x-x.
+    Iy : float
+        Inertia around axis y-y.
+    Iz : float
+        Inertia around axis z-z.
+    """
+    __slots__ = ('A', 'Iy', 'Iz', 'Ix')
+
+    def __init__(self, area=0, torsion_constant=0, moment_inertia_y=0, moment_inertia_z=0):
+        """
+        Instantiate a Section object
+
+        Parameters
+        ----------
+        area : float
+            Cross-sectional area.
+        torsion_constant : float
+            Inertia around axis x-x.
+        moment_inertia_y : float
+            Inertia around axis y-y.
+        moment_inertia_z : float
+            Inertia around axis z-z.
+        """
+        self.A = area
+        self.Ix = torsion_constant
+        self.Iy = moment_inertia_y
+        self.Iz = moment_inertia_z
+\end{lstlisting}
+
+\subsection{RectangularSection}
+La clase \verb|RectangularSection| representa la sección transversal de forma rectángular de los elementos aporticados, al definir los valores de la base y del alto de la figura.\\
+
+En el algoritmo \ref{alg:RectangularSection} se presenta la implementación de la clase \verb|RectangularSection|. Esta clase hereda todos los métodos y atributos de la clase \verb|Section|, para evitar duplicar el código a lo largo del programa, al pasar dicha clase como argumento de entrada cuando se construye la clase \verb|RectangularSection|.\\
+
+Al atributo \verb|__slots__| de la clase \verb|RectangularSection| se le asigna una tupla con las entradas \verb|'width'| y \verb|'height'|. Python no solo limita las instancias de esta clase a los atributos \verb|width| y \verb|height|, sino que se extiende a los elementos definidos en el atributo \verb|__slots__| de la clase \verb|Section|.\\
+
+Según \cite{lutz2013python}, como las variables \verb|__slots__| son atributos a nivel de clases, los objetos instanciados adquieren la unión de todas las entradas en todos los atributos \verb|__slots__| de la clase y sus \emph{super clases}.\\
+
+El constructor de la clase recibe los argumentos de entrada \verb|width| y \verb|height|, los cuales no tiene ningún valor por defecto (a diferencia de los argumentos de entrada del constructor de la clase \verb|Section|). Los valores de los argumentos de entrada son asignados a los respectivos atributos de los objeto tipo \verb|RectangularSection|.\\
+
+Se asume que el valor del parámetro \verb|width| corresponde a la dimensión del elemento aporticado de sección transversal rectangular a lo largo del eje $ y $ del sistema de coordenadas local, mientras que el parámetro \verb|heigth| corresponde a la dimensión del elemento aporticado a lo largo del eje $ z $.\\
+
+Teniendo en cuenta esto se cálcula el área, la constante de torsión y los momentos de inercia alrededor de los ejes $ y $ y $ z $. Para calcular la constante de torsión se utiliza la expresión \eqref{eq:torsion-rectangulo}, la misma que se presenta en \cite{escamilla1995microcomputadores},\\
+
+\begin{equation}
+  \label{eq:torsion-rectangulo}
+  I_{xx} = \left(\frac{1}{3} - 0.21 \frac{a}{b} \left(1 - (1 / 12) (a / b)^4\right)\right) b a ^ 3
+\end{equation}
+donde \verb|a| es la dimensión menor del rectángulo y \verb|b| su dimensión mayor.\\
+
+Finalmente, las propiedades de la sección transversal son pasadas al constructor de la clase \verb|Section| para asignárselas a los atributos del objeto tipo \verb|RectangularSection|. Esto se hace mediante la función \verb|super()| que trae Python por defecto, la cual genera una referencia a la \emph{clase padre}, en este caso, la clase \verb|Section|.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{RectangularSection} implementada en el archivo \texttt{primitives.py}.,label=alg:RectangularSection, frame=single]
+class RectangularSection(Section):
+    """
+    Rectangular cross-section
+
+    Attributes
+    ----------
+    width : float
+        Width rectangular cross section.
+    height : float
+        Height rectangular cross section.
+    A : float
+        Cross-sectional area.
+    Ix : float
+        Inertia around axis x-x.
+    Iy : float
+        Inertia around axis y-y.
+    Iz : float
+        Inertia around axis z-z.
+    """
+    __slots__ = ('width', 'height')
+
+    def __init__(self, width, height):
+        """
+        Instantiate a rectangular section object
+
+        Parameters
+        ----------
+        width : float
+            Width rectangular cross section.
+        height : float
+            Height rectangular cross section.
+        """
+        self.width = width
+        self.height = height
+
+        a = min(width, height)
+        b = max(width, height)
+        area = width * height
+        torsion_constant = (1/3 - 0.21 * (a / b) * (1 - (1/12) * (a/b)**4)) * b * a ** 3
+        moment_inertia_y = (1 / 12) * width * height ** 3
+        moment_inertia_z = (1 / 12) * height * width ** 3
+
+        super().__init__(area, torsion_constant, moment_inertia_y, moment_inertia_z)
+\end{lstlisting}
+
+\subsection{Joint}
+La clase \verb|Joint| representa nodos de la estructura, al definir sus coordenadas en el sistema de coordenadas global.\\
+
+En el algoritmo \ref{alg:Joint} se presenta la implementación de la clase \verb|Joint|. Como mecánismo de optimización, se asigna una tupla con los elementos \verb|x|, \verb|y| y \verb|z| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia.\\
+
+El constructor de la clase recibe tres argumentos de entrada opcionales, uno para cada una de las coordenadas, los cuales tienen $ 0 $ como valor por defecto. Estos valores son pasados a los atributos \verb|x|, \verb|y| y \verb|z| del objeto respectivamente.\\
+
+Finalmente, la clase \verb|Joint| implementa el método \verb|get_coordinate()| que generar una \emph{array} con las coordenadas del objeto.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{Joint} implementada en el archivo \texttt{primitives.py}.,label=alg:Joint, frame=single]
+class Joint(AttrDisplay, metaclass=UniqueInstances):
+    """
+    End of frames
+
+    Attributes
+    ----------
+    x : float
+        X coordinate.
+    y : float
+        Y coordinate.
+    z : float
+        Z coordinate.
+
+    Methods
+    -------
+    get_coordinate()
+        Return joint's coordinates.
+    """
+    __slots__ = ('x', 'y', 'z')
+
+    def __init__(self, x=0, y=0, z=0):
+        """
+        Instantiate a Joint object
+
+        Parameters
+        ----------
+        x : float
+            X coordinate.
+        y : float
+            Y coordinate.
+        z : float
+            Z coordinate.
+        """
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def get_coordinate(self):
+        """Get coordinates"""
+        return np.array([self.x, self.y, self.z])
+\end{lstlisting}
+
+\subsection{Frame}
+La clase \verb|Frame| representa los elementos aporticados de la estructura, al definir sus nodos, material y sección tranversal. En la figura \ref{fig:pyFEM-Frame} se presentan los métodos y atributos de esta clase.\\
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node (clase) [class] {\textbf{Frame}};
+
+    % attrs
+    \node (atrrs) [left=of clase, xshift=-1cm]{};
+
+    % atributos
+    \matrix [
+    matrix of nodes,
+    below=of atrrs,
+    nodes={
+      anchor=center
+    }] (atributos) {
+      \node {joint\_j,};\\
+      \node {joint\_k,};\\
+      \node {material,};\\
+      \node {section};\\
+    };
+    
+    % methods
+    \node (meths) [right=of clase, xshift=1cm]{};
+    \matrix [
+    matrix of nodes,
+    below=of meths,
+    nodes={
+      anchor=center
+    }] (metodos) {
+      \node {get\_length(),}; & \node {get\_direction\_cosines(),};\\
+      \node {get\_rotation(),}; & \node {get\_rotation\_matrix(),};\\
+      \node {get\_local\_stiffness\_matrix(),}; & \node {get\_global\_stiffness\_mtrix()};\\
+    };
+    
+    \node [atributos, fit=(atributos)] {};
+    \node [metodos, fit=(metodos)] {};
+
+    \draw[myarrow] (atributos.north) -- ++(0,0) |- ( clase.west);
+    \draw[myarrow] (metodos.north) -- ++(0,0) |- (clase.east);
+  \end{tikzpicture}
+  \caption{Métodos y atributos de la clase \texttt{Frame}.}
+  \label{fig:pyFEM-Frame}
+\end{figure}
+
+En la figura \ref{fig:space-frame} se presenta un elemento aporticado \emph{i} con sus nodos \emph{j} y \emph{k} empotrados. El sistema de coordenadas local del elemento tiene como origen el nodo \emph{j}; el eje $ x $ coincide con el eje centroidal del elemento y es positivo en el sentido del nodo \emph{j} al nodo \emph{k}.\\
+
+Los ejes $ y $ y $ z $ son los ejes principales del elemento de manera que los planos $ xy $ y $ zx $ son los planos principales de flexión. Se asume que el centro de cortante y el centroide del elemento coinciden de tal forma que la flexión y la torsión se presentan una independiente de la otra.\\
+
+Los grados de libertad se numeran del 1 al 12, empezando por las translaciones y las rotaciones del nodo \emph{j}, tomados en orden $ x $, $ y $, $ z $ respectivamente.\\
 
 \begin{figure}[ht]
   \centering
@@ -81,11 +680,217 @@ En la figura \ref{fig:space-frame} se presenta un elemento \emph{i} tipo \emph{p
     \dscaling{3}{1};
     \daxis{1}{0, 0, 0};
   \end{tikzpicture}
-  \caption{Elemento tipo pórtico en coordenadas locales.}
+  \caption{Elemento aporticado y su sistema de coordenadas local.}
   \label{fig:space-frame}
 \end{figure}
 
-Según \cite{weaver1990matrixanalysis}, (\ref{eq:matriz-rigidez-elemento-portico}) es la matrix de rigidez del elemento tipo pórtico en coordenadas locales, donde $ E $ es el módulo de elasticidad del material, $ G $ es el módulo de elasticidad a cortante del material, $ L $ es la longitud del elemento y $ A_x $, $ I_x $, $ I_y $ y $ I_z $ son el área, la constante de torsión y los momentos principales de inercia con respecto a los ejes $ y $ y $ z $ de la sección transversal.\\
+Como mecánismo de optimización, se asigna una tupla con los elementos \verb|joint_j|, \verb|joint_k|, \verb|material| y \verb|section| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia.\\
+
+En el algoritmo \ref{alg:Frame-init} se presenta el constructor de la clase \verb|Frame|. El constructor de la clase \verb|Frame| recibe cuatro argumentos de entrada; para el nodo cercano, el nodo lejano, el material y la sección, los cuales tiene \verb|None| como valor por defecto. Los argumentos de entrada son pasados a los atributos \verb|joint_j|, \verb|joint_k|, \verb|material| y \verb|section| respectivamente.\\\
+
+\begin{lstlisting}[language=Python,caption=Constructor de la clase \texttt{Frame}.,label=alg:Frame-init, frame=single]
+def __init__(self, joint_j=None, joint_k=None, material=None, section=None):
+    """
+    Instantiate a Frame object
+
+    Parameters
+    ----------
+    joint_j : Joint
+        Near Joint object.
+    joint_k : Joint
+        Far Joint object.
+    material : Material
+        Material object.
+    section : Section
+        Section object.
+    """
+    self.joint_j = joint_j
+    self.joint_k = joint_k
+    self.material = material
+    self.section = section
+\end{lstlisting}
+\bigskip
+A continuación se presentan los métodos de la clase \verb|Frame|, con los cuales se puede, entre otras cosas, calcular la matriz de rigidez de los elementos tipo \verb|Frame|.\\
+
+\subsubsection{get\_length()}
+El método \verb|get_length()| de la clase \verb|Frame| permite calcular la longitud de los elementos aporticados representado por objetos tipo \verb|Frame|.\\
+
+En el algoritmo \ref{alg:Frame-get_length} se presenta la implementación del método \verb|get_length()|. El método calcula la distancia que hay entre las coordenadas de los nodos del elemento aporticado. Para esto llama la función \verb|distance.euclidean()| con las coordenadas de los objeto tipo \verb|Joint|, las cuales obtiene con el método \verb|get_coordinate()| (véase el algoritmo \ref{alg:Joint}).\\
+
+Según \cite{2020SciPy-NMeth}, esta función calcula la distancia euclidiana entre dos \emph{arrays} $ u $ y $ v $ de una dimensión como
+\begin{equation}
+  {||u-v||}_2 = \left(\sum{w_i |(u_i - v_i)|^2}\right)^{1/2}
+\end{equation}
+
+donde \verb|w| es un \emph{array} que toma para cada entrada un peso de $ 1 $ por defecto.\\ 
+\pagebreak
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_length()} de la clase \texttt{Frame}.,label=alg:Frame-get_length, frame=single]
+def get_length(self):
+    """Get length"""
+    return distance.euclidean(self.joint_j.get_coordinate(), self.joint_k.get_coordinate())
+\end{lstlisting}
+
+\subsubsection{get\_direction\_cosines()}
+El método \verb|get_direction_cosines()| de la clase \verb|Frame| permite calcular los cosenos directores del eje $ x $ del sistema de coordenadas local de los elementos aporticados, representados por objetos tipo \verb|Frame|, en el sistema de coordenadas global.\\
+
+En el algoritmo \ref{alg:Frame-get_direction_cosines} se presenta la implementación del método \verb|get_direction_cosines()|. El método resta las coordenadas de los nodos del elemento aporticado y almacena el resultado en la variable \verb|vector|. Después divide cada uno de los elementos de \verb|vector| por la norma de dicha variable, calculada mediante la función \verb|linalg.norm()|.\\
+
+Según \cite{harris2020array}, esta función calcula la norma de un vector como
+
+\begin{equation}
+  {||A||}_F = \left[\sum_{i,j} abs(a_{i,j})^2\right]^{1/2}
+\end{equation}
+
+donde $ a_{i,j} $ es el elemento del vector en la posición $ i, j $.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_direction\_cosines()} de la clase \texttt{Frame}.,label=alg:Frame-get_direction_cosines, frame=single]
+def get_direction_cosines(self):
+    """Get direction cosines"""
+    vector = self.joint_k.get_coordinate() - self.joint_j.get_coordinate()
+
+    return vector / linalg.norm(vector)
+\end{lstlisting}
+
+\subsubsection{get\_rotation()}
+El método \verb|get_rotation()| de la clase \verb|Frame| permite calcular la rotación de los elementos aporticados, representados por objetos tipo \verb|Frame|, con respecto al sistema de coordenadas global.\\
+
+Según el \emph{teorema de rotación de Euler} (véase \cite{euler_rotations}), siempre es posible encontrar un diámetro de una esfera cuya posición es la misma después de rotar la esfera alredor de su centro, por lo que cualquier secuencia de rotaciones de un sistema coordenado tridimensional es equivalente a una única rotación alrededor de un eje que pase por el origen.\\
+
+El ángulo $ \theta $ y el vector $ n $  que definen la rotación del eje $ x $ del sistema de coordenadas global hacia el eje $ x_m $ del sistema de coordenadas local de un elemento aporticado se puede calcular como
+\begin{equation}
+  \label{eq:quaternion_from_axis}
+  \begin{aligned}
+    \mathbf{n} &= (1, 0, 0) \times \mathbf{x_m} \\
+    \theta &= \arccos((1, 0, 0) \cdot \mathbf{x_m})
+  \end{aligned}
+\end{equation}
+
+Según \cite{dunn20023d}, la rotación de un sistema de coordenadas tridimensionales alrededor del eje $ \mathbf{n} $ una cantidad $ \theta $ se puede describir mediante un \emph{cuaternión} como
+
+\begin{equation}
+  \label{eq:quaternion}
+  \mathbf{q} =
+  \begin{bmatrix}
+    cos(\theta/2) & sin(\theta/2) \mathbf{n}
+  \end{bmatrix}
+\end{equation}
+
+y se puede obtener la matriz de rotación a partir de un cuaternión de la siguiente manera
+\begin{equation}
+  \label{eq:matriz-rotacion}
+  \mathbf{R} =
+  \begin{bNiceMatrix}
+    1 - 2y^2-2z^2 & 2xy + 2wz & 2xz - 2wy \\
+    2xy - 2wz & 1 - 2x^2-2z^2 & 2yz + 2wx \\
+    2xz + 2wy & 2yz-2wx & 1 - 2x^2 - 2y^2
+  \end{bNiceMatrix}
+\end{equation}
+
+donde $ w $ es la parte escalar y $ x $, $ y $ y $ z $ la parte vectorial del cuaternión.\\
+
+En el algoritmo \ref{alg:Frame-get_rotation} se presenta la implementación del método \verb|get_rotation()|. El método calcula el \emph{cuaternión} que representa la rotación del eje $ x $ del sistena de coordenadas global hacía el eje $ x $ del sistema de coordenadas local del elemento aporticado.\\
+
+Para esto, se almacena el eje global $ x $ y el eje local $ x $ en las variables \verb|v_from| y \verb|v_to| respectivamente. El eje global $ x $ es igual a $ (1, 0, 0) $ mientras que el eje local $ x $ se calcula mediante el método \verb|get_direction_cosines()| (véase el algoritmo \ref{alg:Frame-get_direction_cosines}).\\
+
+Después, se verifica si las variables \verb|v_from| y \verb|v_to| son iguales entre sí, o si una variable es el inverso aditivo de la otra.\\
+
+En el caso que las variables sean iguales entre sí, no hay rotación y el ángulo $ \theta $ es igual a cero, por lo tanto el cuaternión es igual a $ (1, 0 \times \mathbf{n}) $ (véase la ecuación \ref{eq:quaternion}). En caso contrario, el ángulo $ \theta $ que describe la rotación es igual a 180\degree. Como eje se asume el eje global $ z $, por lo que el cuaternión es igual a $ (0, 1 \times (0, 0, 1)) $.\\
+
+Si las variables \verb|v_from| y \verb|v_to| no son iguales entre sí, y una no es el inverso aditivo de la otra, entonces se calcula el eje y el ángulo que describen la rotación del eje global $ x $ hacia el eje local $ x $ del elemento aporticado, aplicando las expresiones de ecuación \eqref{eq:quaternion_from_axis}.\\
+
+Para calcular el eje se halla el producto cruz entre el eje global $ x $ y el eje local $ x $ mediante la función \verb|cross()|. Después se normaliza el resultado dividiendolo por su norma, con ayuda de la función \verb|linalg.norm()|.\\
+
+El ángulo se halla calculando el arcocoseno del producto punto entre el eje global $ x $ y el eje local $ x $. Esto se calcula mediante las funciones \verb|dot()| y \verb|arccos()| respectivamente.\\
+
+Finalmente, se aplican las expresiones de la ecuación \eqref{eq:quaternion} para crear un objeto tipo \verb|Rotation|, mediante la función \verb|Rotation.from_quat()|.\\
+
+Según \cite{2020SciPy-NMeth}, la función \verb|from_quat()| permite crear objetos tipo \verb|Rotation|, los cuales son una interfaz para inicializar y representar rotaciones en el espacio, mediante un cuaternión.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_rotation()} de la clase \texttt{Frame}.,label=alg:Frame-get_rotation, frame=single]
+def get_rotation(self):
+    """Get rotation"""
+    v_from = np.array([1, 0, 0])
+    v_to = self.get_direction_cosines()
+
+    if np.all(v_from == v_to):
+        return Rotation.from_quat([0, 0, 0, 1])
+
+    elif np.all(v_from == -v_to):
+        return Rotation.from_quat([0, 0, 1, 0])
+
+    else:
+        w = np.cross(v_from, v_to)
+        w = w / linalg.norm(w)
+        theta = np.arccos(np.dot(v_from, v_to))
+
+        return Rotation.from_quat([x * np.sin(theta/2) for x in w] + [np.cos(theta/2)])
+\end{lstlisting}
+
+\subsubsection{get\_rotation\_matrix()}
+
+El método \verb|get_rotation_matrix()| de la clase \verb|Frame| permite calcular la matriz de transformación de rotación de los elementos aporticados, representados por objetos tipo \verb|Frame|, con respecto al sistema de coordenadas global.\\
+
+Según \cite{weaver1990matrixanalysis}, la matriz de transformación de rotación $ R_T $ para un elemento aporticado es
+\begin{equation}
+  \mathbf{R_T} =
+  \begin{bNiceMatrix}
+    \mathbf{R} & \mathbf{0} & \mathbf{0} & \mathbf{0} \\
+    \mathbf{0} & \mathbf{R} & \mathbf{0} & \mathbf{0} \\
+    \mathbf{0} & \mathbf{0} & \mathbf{R} & \mathbf{0} \\
+    \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{R} \\
+  \end{bNiceMatrix}
+\end{equation}
+
+donde $ \mathbf{R} $ es la matriz de rotación presentada en \eqref{eq:matriz-rotacion}.\\
+
+En el algoritmo \ref{alg:Frame-get_rotation_matrix} se presenta la implementación del método \verb|get_rotation_matrix()|. El método recibe como argumentos de entrada un \emph{array} que indica para cada grado de libertad si está o no activado. Según los grados de libertad activados se genera la matriz de transformación de rotación de los elementos aporticados.\\
+
+La matriz de transformación de rotación se genera a partir de la matriz de rotación del elemento aporticado, calculada con el método \verb|get_rotation().as_dcm()| de la clase \verb|Frame| (véase el algoritmo \ref{alg:Frame-get_rotation}), y la función \verb|bsr_matrix()|.\\
+
+Según \cite{2020SciPy-NMeth}, el método \verb|as_dcm()| de la clase \verb|Rotation| calcula la matriz de rotación de los objetos tipo \verb|Rotation| y la función \verb|bsr_matrix()| crea matrices dispersas con submatrices densas describiendolas en la representación estándar \verb|(data, indices, indptr)|. En dicha representación los índices de la columna de cada submatriz en la fila \verb|i| de la matriz dispersa están almacenados en \verb|indices[indptr[i]:indptr[i+1]]| y los valores correspondientes almacenados en \verb|data[indptr[i]:indptr[i+1]]|.\\
+
+En las variable \verb|indptr| e \verb|indices| se almacenan los \emph{arrays} \verb|[0, 1, 2]| y \verb|[0, 1]| respectivamente. Estas variables describen en la representación estándar las posiciones que ocupan dos submatrices en la diagonal principal de una matriz dispersa.\\
+
+En la primer fila hay una submatriz en la primer columna (\verb|indices[indptr[0]:indptr[1]]|\ \verb|->|\verb|indices[0:1]|\verb|->|\verb|indices[0]->0|) y en la segunda fila hay una submatriz en la segunda columna (\verb|indices[|\verb|indptr[1]:indptr[2]]|\verb|->|\verb|indices[1:2]|\verb|->|\verb|indices[1]->1|).\\
+
+Inicialmente se calcula la matriz de transformación de rotación para un solo nodo. Después se seleccionan las filas y las columnas de esta matriz asociadas a los grados de libertad activados. Finalmente se crea toda la matriz de transformación de rotación duplicando los valores seleccionados.\\
+
+Para crear la matriz de transformación de rotacion para un solo nodo se duplica la matriz de rotación del elemento aporticado, mediante la función \verb|tile|, y se almacena en la variable \verb|data|. Después se pasa junto con las variables \verb|indptr| e \verb|indices| a la función \verb|bsr_matrix()|.\\
+
+La matriz de transformación de rotación del elemento aporticado se crea al indicar dos matrices de transformación de rotación para un solo nodo en la diagonal principal de una matriz dispersa, después de haber seleccionado las filas y columnas asociadas a los grados de libertad activados. El tamaño de la matriz de transformación de rotación se calcula en función de la cantidad de grados de libertad activados.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_rotation\_matrix()} de la clase \texttt{Frame}.,label=alg:Frame-get_rotation_matrix, frame=single]
+def get_rotation_matrix(self, flag_active_joint_displacements):
+    """
+    Get rotation matrix
+
+    Parameters
+    ----------
+    flag_active_joint_displacements : array
+        Flags active joint's displacements
+    """
+    # rotation as direction cosine matrix
+    indptr = np.array([0, 1, 2])
+    indices = np.array([0, 1])
+    data = np.tile(self.get_rotation().as_dcm(), (2, 1, 1))
+
+    # matrix rotation for a joint
+    t1 = bsr_matrix((data, indices, indptr), shape=(6, 6)).toarray()
+
+    flag_active_joint_displacements = np.nonzero(flag_active_joint_displacements)[0]
+    n = 2 * np.size(flag_active_joint_displacements)
+    
+    t1 = t1[flag_active_joint_displacements[:, None], flag_active_joint_displacements]
+    data = np.tile(t1, (2, 1, 1))
+
+    return bsr_matrix((data, indices, indptr), shape=(n, n)).toarray()
+\end{lstlisting}
+
+\subsubsection{get\_local\_stiffness\_matrix()}
+El método \verb|get_local_stiffness_matrix()| de la clase \verb|Frame| permite calcular la matriz de rigidez de los elementos aporticados, representados por objetos tipo \verb|Frame|, con respecto al sistema de coordenadas local.\\
+
+Según \cite{weaver1990matrixanalysis}, \eqref{eq:matriz-rigidez-elemento-portico} es la matrix de rigidez del elemento aporticado en coordenadas locales, donde $ E $ es el módulo de Young y $ G $ es el módulo de elasticidad a cortante del material, $ L $ es la longitud del elemento y $ A_x $, $ I_x $, $ I_y $ e $ I_z $ son el área, la constante de torsión y los momentos principales de inercia de la sección transversal.\\
 
 \begin{equation}
   \begin{bNiceArray}{CCCCCCCCCCCC}[small,
@@ -109,35 +914,1444 @@ Según \cite{weaver1990matrixanalysis}, (\ref{eq:matriz-rigidez-elemento-portico
     & \emph{sim.} & & & & & & & & & & & \frac{4EI_z}{L}
     \label{eq:matriz-rigidez-elemento-portico}
   \end{bNiceArray}
-\end{equation}  
-
-Según el \emph{teorema de rotación de Euler} (véase \cite{euler_rotations}), siempre es posible encontrar un diámetro de una esfera cuya posición es la misma después de rotarla alredor de su centro, por lo que cualquier secuencia de rotaciones de un sistema coordenado tridimensional es equivalente a una única rotación alrededor de un eje que pase por el origen.\\
-
-El ángulo $ \theta $ y el vector $ n $  que definen la rotación del eje $ x $ del sistema de coordenadas global hacia el eje $ x_m $ del sistema de coordenadas de un elemento se puede calcular como
-\begin{equation}
-  \begin{aligned}
-    \mathbf{n} &= (1, 0, 0) \times \mathbf{x_m} \\
-    \theta &= \arcsen((1, 0, 0) \cdot \mathbf{x_m})
-  \end{aligned}
 \end{equation}
 
-Según \cite{dunn20023d}, la rotación de un sistema de coordenadas tridimensionales alrededor del eje $ \mathbf{n} $ una cantidad $ \theta $ se puede describir mediante un \emph{cuaternión} como
+En el algoritmo \ref{alg:Frame-get_local_stiffness_matrix} se presenta la implementación del método \verb|get_local_stiffness_|\ \verb|matrix()|. El método recibe como argumentos de entrada un \emph{array} que indica para cada grado de libertad si está o no activado. Según los grados de libertad activados se genera la matriz de rigidez en el sistema de coordenadas local.\\
 
+La matriz de rigidez en el sistema de coordenadas local se calcula con los atributos del material, de la sección tranversal, de los nodos de los elementos aporticados y la función \verb|coo_matrix()|.\\
+
+Según \cite{2020SciPy-NMeth}, con la función \verb|coo_matrix()| se pueden crear matrices dispersas en el formato coordenado, también conocido como el formato \emph{ijv} o el formato triple. En este formato los indices de las filas, de las columnas y los respectivos valores de la matriz dispersa son almacenados en tres \emph{arrays} independientes \verb|i|, \verb|j| y \verb|data| de tal manera que se cumpla \verb|A[i[k], j[k]] = data[k]|.\\
+
+En las variables \verb|length|, \verb|e|, \verb|iy| y \verb|iz| se almacenan la longitud del elemento aporticado (véase el algoritmo \ref{alg:Frame-get_length}), el módulo de Young del material y las inercias principales de la sección transversal con respecto a los ejes $ y $ y $ z $ del sistema de coordenadas local.\\
+
+Después se calcula el módulo de Young dividido entre varias potencias de la longitud del elemento aporticado y los resultados se almacena en las variables \verb|el|, \verb|el2| y \verb|el3| respectivamente. El número al final del nombre de estas variables indica la potencia de la longitud del elemento.\\
+
+Con estas variables se calculan los términos $ EA / L $, $ GI_x / L $, $ EI_y / L $, $ EI_z / L $, $ 6EI_y / L^2 $, $ 6EI_z / L^2 $, $ 12EI_y / L^3 $ y $ 12EI_z / L^3 $, los cuales son almacenados en las variables \verb|ael|, \verb|gjl|, \verb|e_iy_l|, \verb|e_iz_l|, \verb|e_iy_l2|, \verb|e_iz_l2|, \verb|e_iy_l3| y \verb|e_iz_l3|, respectivamente.\\
+
+Con estas variables se describe la matriz de rigidez en coordenadas locales como una matriz dispersa en el formato \emph{ijv}. Los indices de las filas y las columnas se almacenan en los \emph{arrays} \verb|rows| y \verb|cols|, respectivamente, mientras que los valores de la matriz se almacenan en el \emph{array} \verb|data|.\\
+
+Por ejemplo, para describir los términos de la matriz de rigidez asociados a las solicitaciones axiales, se le pasa a los \emph{arrays} \verb|rows| y \verb|cols| los valores \verb|[0, 6, 0, 6]| y \verb|[0, 6, 6, 0]|, y al \emph{array} \verb|data| se le pasa los valores \verb|[ael, ael, -eal, -eal]|. Para los otros términos de la matriz de rigidez se procede de manera similar.\\
+
+Finalmente, se genera la matriz de rigidez del elemento aporticado en el sistema de coordenadas local y se seleccionan las filas y columnas asociadas a los grados de libertad activados.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_local\_stiffness\_matrix()} de la clase \texttt{Frame}.,label=alg:Frame-get_local_stiffness_matrix, frame=single]
+def get_local_stiffness_matrix(self, active_joint_displacements):
+    """
+    Get local stiffness matrix
+
+    Parameters
+    ----------
+    active_joint_displacements : array
+        Flags active joint's displacements
+    """
+    length = self.get_length()
+
+    e = self.material.E
+
+    iy = self.section.Iy
+    iz = self.section.Iz
+
+    el = e / length
+    el2 = e / length ** 2
+    el3 = e / length ** 3
+
+    ael = self.section.A * el
+    gjl = self.section.Ix * self.material.G / length
+
+    e_iy_l = iy * el
+    e_iz_l = iz * el
+
+    e_iy_l2 = 6 * iy * el2
+    e_iz_l2 = 6 * iz * el2
+
+    e_iy_l3 = 12 * iy * el3
+    e_iz_l3 = 12 * iz * el3
+
+    rows = np.empty(40, dtype=int)
+    cols = np.empty(40, dtype=int)
+    data = np.empty(40)
+
+    # AE / L
+    rows[:4] = np.array([0, 6, 0, 6])
+    cols[:4] = np.array([0, 6, 6, 0])
+    data[:4] = np.array([ael, ael, -ael, -ael])
+
+    # GJ / L
+    rows[4:8] = np.array([3, 9, 3, 9])
+    cols[4:8] = np.array([3, 9, 9, 3])
+    data[4:8] = np.array([gjl, gjl, -gjl, -gjl])
+
+    # 12EI / L^3
+    rows[8:12] = np.array([1, 7, 1, 7])
+    cols[8:12] = np.array([1, 7, 7, 1])
+    data[8:12] = np.array([e_iz_l3, e_iz_l3, -e_iz_l3, -e_iz_l3])
+
+    rows[12:16] = np.array([2, 8, 2, 8])
+    cols[12:16] = np.array([2, 8, 8, 2])
+    data[12:16] = np.array([e_iy_l3, e_iy_l3, -e_iy_l3, -e_iy_l3])
+
+    # 6EI / L^2
+    rows[16:20] = np.array([1, 5, 1, 11])
+    cols[16:20] = np.array([5, 1, 11, 1])
+    data[16:20] = np.array([e_iz_l2, e_iz_l2, e_iz_l2, e_iz_l2])
+
+    rows[20:24] = np.array([5, 7, 7, 11])
+    cols[20:24] = np.array([7, 5, 11, 7])
+    data[20:24] = np.array([-e_iz_l2, -e_iz_l2, -e_iz_l2, -e_iz_l2])
+
+    rows[24:28] = np.array([2, 4, 2, 10])
+    cols[24:28] = np.array([4, 2, 10, 2])
+    data[24:28] = np.array([-e_iy_l2, -e_iy_l2, -e_iy_l2, -e_iy_l2])
+
+    rows[28:32] = np.array([4, 8, 8, 10])
+    cols[28:32] = np.array([8, 4, 10, 8])
+    data[28:32] = np.array([e_iy_l2, e_iy_l2, e_iy_l2, e_iy_l2])
+
+    # 4EI / L
+    rows[32:36] = np.array([4, 10, 5, 11])
+    cols[32:36] = np.array([4, 10, 5, 11])
+    data[32:36] = np.array([4 * e_iy_l, 4 * e_iy_l, 4 * e_iz_l, 4 * e_iz_l])
+
+    rows[36:] = np.array([10, 4, 11, 5])
+    cols[36:] = np.array([4, 10, 5, 11])
+    data[36:] = np.array([2 * e_iy_l, 2 * e_iy_l, 2 * e_iz_l, 2 * e_iz_l])
+
+    k = coo_matrix((data, (rows, cols)), shape=(12, 12)).toarray()
+
+    active_frame_displacement = np.nonzero(np.tile(active_joint_displacements, 2))[0]
+
+    return k[active_frame_displacement[:, None], active_frame_displacement]
+\end{lstlisting}
+
+\subsubsection{get\_global\_stiffness\_matrix()}
+
+El método \verb|get_global_stiffness_matrix()| de la clase \verb|Frame| permite calcular la matriz de rigidez de los elementos aporticados, representados por objetos tipo \verb|Frame|, con respecto al sistema de coordenadas global.\\
+
+Según \cite{weaver1990matrixanalysis}, la matriz de rigidez de los elementos aporticados con respecto al sistema de coordenadas global se puede calcular como
 \begin{equation}
-  \mathbf{q} =
-  \begin{bmatrix}
-    cos(\theta/2) & sin(\theta/2) \mathbf{n}
-  \end{bmatrix}
+  \mathbf{S_{MS} = R_T S_M R_T^T}
+  \label{eq:matriz-rigidez-global}
 \end{equation}
 
-y se puede obtener la matriz de rotación a partir de un cuaternión de la siguiente manera
+donde $ \mathbf{R_T} $ y $ \mathbf{S_M} $ son la matriz de transformación de rotación y la matriz de rigidez en el sistema de coordenadas local del elemento aporticado.\\
+
+En el algoritmo \ref{alg:Frame-get_global_stiffness_matrix} se presenta la implementación del método \verb|get_global_stiffness_|\ \verb|matrix()|. El método recibe como argumento de entrada un \emph{array} que indica para cada grado de libertad si está o no activado. Según los grados de libertad activados se genera la matriz de rigidez en el sistema de coordenadas global.\\
+
+La matriz de rigidez en el sistema de coordenadas global se calcula con la matriz de rigidez en el sistema de coordenadas local y la matriz de transformación de rotación del elemento aporticado. Estas matrices son calculadas con los métodos \verb|get_matrix_rotation()| (véase el algoritmo \ref{alg:Frame-get_rotation_matrix}) y \verb|get_local_stiffness_matrix()| (véase el algoritmo \ref{alg:Frame-get_local_stiffness_matrix}), y almacenadas en las variables \verb|k| y \verb|t|, respectivamente.\\
+
+Finalmente, se operan las matrices obtenidas según \eqref{eq:matriz-rigidez-global} para calcular la matriz de rigidez del elemento aporticado en el sistema de coordenadas global con las funciones \verb|dot()| y \verb|transpose()|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_global\_stiffness\_matrix()} de la clase \texttt{Frame}.,label=alg:Frame-get_global_stiffness_matrix, frame=single]
+def get_global_stiffness_matrix(self, active_joint_displacements):
+    """
+    Get the global stiffness matrix
+
+    Parameters
+    ----------
+    active_joint_displacements : array
+        Flags active joint's displacements
+    """
+    k = self.get_local_stiffness_matrix(active_joint_displacements)
+    t = self.get_rotation_matrix(active_joint_displacements)
+
+    return np.dot(np.dot(t, k), np.transpose(t))
+\end{lstlisting}
+
+\subsection{Support}
+La clase \verb|Support| representa los apoyos de la estructura, al establecer los desplazamientos restringidos de los nodos.\\
+
+En el algortimo \ref{alg:Support} se presenta la implementación de la clase \verb|Support|. Como mecánismo de optimización, se asigna una tupla con los elementos \verb|'ux'|, \verb|'uy'|, \verb|'uz'|, \verb|'rx'|, \verb|'ry'| y \verb|'rz'| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia.\\
+
+El constructor de la clase recibe seis argumentos de entrada opcionales, para cada uno de los grados de libertad, los cuales tienen \verb|False| como valor por defecto. El usuario debe indicar qué grados de libertad están restrigidos.\\
+
+Finalmente, la clase \verb|Support| implementa el método \verb|get_restrains()| que genera un \emph{array} que indica para cada grado de libertad activado si está o no restrigido.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{Support} implementada en el archivo \texttt{primitives.py}.,label=alg:Support, frame=single]
+class Support(AttrDisplay):
+    """
+    Point of support
+
+    Attributes
+    ----------
+    ux : bool
+        Flag restrain x-axis translation.
+    uy : bool
+        Flag restrain y-axis translation.
+    uz : bool
+        Flag restrain z-axis translation.
+    rx : bool
+        Flag restrain x-axis rotation.
+    ry : bool
+        Flag restrain y-axis rotation.
+    rz : bool
+        Flag restrain z-axis rotation.
+
+    Methods
+    -------
+    get_restrains()
+        Get flag restrains.
+    """
+
+    __slots__ = ('ux', 'uy', 'uz', 'rx', 'ry', 'rz')
+    
+    def __init__(self, ux=False, uy=False, uz=False, rx=False, ry=False, rz=False):
+        """
+        Instantiate a Support object
+
+        Parameters
+        ----------
+        ux : bool
+            Flag restrain x-axis translation.
+        uy : bool
+            Flag restrain y-axis translation.
+        uz : bool
+            Flag restrain z-axis translation.
+        rx : bool
+            Flag restrain x-axis rotation.
+        ry : bool
+            Flag restrain y-axis rotation.
+        rz : bool
+            Flag restrain z-axis rotation.
+        """
+        self.ux = ux
+        self.uy = uy
+        self.uz = uz
+        self.rx = rx
+        self.ry = ry
+        self.rz = rz
+
+    def get_restrains(self, flag_joint_displacements):
+        """
+        Get restrains
+
+        Attributes
+        ----------
+        flag_joint_displacements : array
+            Flag active joint displacements.
+        """
+        return np.array([getattr(self, name) for name in self.__slots__])[flag_joint_displacements]
+\end{lstlisting}
+
+\subsection{LoadPattern}
+
+La clase \verb|LoadPattern| representa los patrones de carga a los que está sometida la estructura, al establecer la magnitud de las fuerzas y las cargas distribuidas que actúan en los nodos y en los elementos aporticados, respectivamente. En la figura \ref{fig:pyFEM-LoadPattern} se presentan los métodos y atributos de esta clase.\\
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node (clase) [class] {\textbf{LoadPattern}};
+
+    % attrs
+    \node (atrrs) [left=of clase, xshift=-1cm]{};
+
+    % atributos
+    \matrix [
+    matrix of nodes,
+    below=of atrrs,
+    nodes={
+      anchor=center
+    }] (atributos) {
+      \node {loads\_at\_joints,};\\
+      \node {distributed\_loads};\\
+    };
+    
+    % methods
+    \node (meths) [right=of clase, xshift=1cm]{};
+    \matrix [
+    matrix of nodes,
+    below=of meths,
+    nodes={
+      anchor=center
+    }] (metodos) {
+      \node {add\_point\_load\_at\_joint(),};\\
+      \node {add\_distributed\_load(),};\\
+      \node {get\_number\_point\_loads\_at\_joints(),};\\
+      \node {get\_number\_distributed\_loads(),};\\
+      \node {get\_f(),};\\
+      \node {get\_f\_fixed()};\\
+    };
+    
+    \node [atributos, fit=(atributos)] {};
+    \node [metodos, fit=(metodos)] {};
+
+    \draw[myarrow] (atributos.north) -- ++(0,0) |- ( clase.west);
+    \draw[myarrow] (metodos.north) -- ++(0,0) |- (clase.east);
+  \end{tikzpicture}
+  \caption{Métodos y atributos de la clase \texttt{LoadPattern}.}
+  \label{fig:pyFEM-LoadPattern}
+\end{figure}
+
+Como mecánismo de optimización, se asigna una tupla con los elementos \verb|loads_at_joints| y \verb|distributed_loads| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia.\\
+
+En el algoritmo \ref{alg:LoadPattern-init} se presenta el constructor de la clase \verb|LoadPattern|. El constructor de la clase no tiene argumentos de entrada. Sin embargo, asigna un diccionario vacío a los atributos \verb|loads_at_joints| y \verb|distributed_loads|.\\
+
+\begin{lstlisting}[language=Python,caption=Constructor de la clase \texttt{LoadPattern}.,label=alg:LoadPattern-init, frame=single]
+def __init__(self):
+  """Instantiate a LoadPatter object"""
+  self.loads_at_joints = {}
+  self.distributed_loads = {}
+\end{lstlisting}
+\bigskip
+A continuación se presentan los métodos de la clase \verb|LoadPattern|, con los cuales se puede, entre otras cosas, calcular el vector de fuerzas en los nodos de la estructura del caso de carga.\\
+
+\subsubsection{add\_point\_load\_at\_joint()}
+
+El método \verb|add_point_load_at_joint()| de la clase \verb|LoadPattern| permite agregar fuerzas en los nodos.\\
+
+En el algoritmo \ref{alg:LoadPattern-add_point_load_at_joint} se presenta la implementación del método \verb|add_point_load_at_joint()|. Los argumentos de entrada opcionales \verb|*args| y \verb|**kwargs| son pasados al constructor de la clase \verb|PointLoad|, mientras que el argumento \verb|joint| es usado como llave para almacenar el objeto creado en el diccionario \verb|loads_at_joints|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{add\_point\_load\_at\_joint()} de la clase \texttt{LoadPattern}.,label=alg:LoadPattern-add_point_load_at_joint, frame=single]
+def add_point_load_at_joint(self, joint, *args, **kwargs):
+  """
+  Add a point load at joint
+
+  Parameters
+  ----------
+  joint : Joint
+      Joint.
+  """
+  self.loads_at_joints[joint] = PointLoad(*args, **kwargs)
+\end{lstlisting}
+
+\subsubsection{add\_distributed\_load()}
+
+El método \verb|add_distributed_load()| de la clase \verb|LoadPattern| permite agregar cargas distribuidas en los elementos aporticados.\\
+
+En el algoritmo \ref{alg:LoadPattern-add_distributed_load} se presenta la implementación del método \verb|add_distributed_load()|. Los argumentos de entrada opcionales \verb|*args| y \verb|**kwargs| son pasados al constructor de la clase \verb|DistributedLoad|, mientras que el argumento \verb|frame| es usado como llave para almacenar el objeto creado en el diccionario \verb|distributed_loads|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{add\_distributed\_load()} de la clase \texttt{LoadPattern}.,label=alg:LoadPattern-add_distributed_load, frame=single]
+def add_distributed_load(self, frame, *args, **kwargs):
+  """
+  Add a distributed load at frame
+  Parameters
+  ----------
+  frame : Joint
+      Frame
+  """
+  self.distributed_loads[frame] = DistributedLoad(*args, **kwargs)
+\end{lstlisting}
+
+\subsubsection{get\_number\_point\_loads\_at\_joints()}
+
+El método \verb|get_number_point_loads_at_joints()| de la clase \verb|LoadPattern| calcula el número de nodos cargados.\\
+
+En el algoritmo \ref{alg:LoadPattern-get_number_point_loads_at_joints} se presenta la implementación del método \verb|get_number_point_loads| \verb|_at_joints()|. El método calcula la cantidad de entradas que tiene el diccionario \verb|loads_at_| \verb|joints|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_number\_point\_loads\_at\_joints()} de la clase \texttt{LoadPattern}.,label=alg:LoadPattern-get_number_point_loads_at_joints, frame=single]
+def get_number_point_loads_at_joints(self):
+  """Get number loads at joints"""
+  return len(self.loads_at_joints)
+\end{lstlisting}
+
+\subsubsection{get\_number\_distributed\_loads()}
+
+El método \verb|get_number_distributed_loads()| de la clase \verb|LoadPattern| calcula el número de elementos aporticados cargados.\\
+
+En el algoritmo \ref{alg:LoadPattern-get_number_distributed_loads} se presenta la implementación del método \verb|get_number_distributed_| \verb|loads()|. El método calcula la cantidad de entradas que tiene el diccionario \verb|distributed_| \verb|loads|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_number\_distributed\_loads()} de la clase \texttt{LoadPattern}.,label=alg:LoadPattern-get_number_distributed_loads, frame=single]
+def get_number_distributed_loads(self):
+  """Get number distributed loads"""
+  return len(self.distributed_loads)
+\end{lstlisting}
+
+\subsubsection{get\_f()}
+
+El método \verb|get_f()| de la clase \verb|LoadPattern| calcula el vector de fuerzas total en los nodos de la estructura del caso de carga, representado por objetos tipo \verb|LoadPattern|, con respecto al sistema de coordenadas global.\\
+
+Según \cite{weaver1990matrixanalysis}, el vector de fuerzas equivalente en los nodos de la estructura $ A_E $ debido a las cargas en los elementos aporticados se calcula como
+
 \begin{equation}
-  \mathbf{R} =
-  \begin{bNiceMatrix}
-    1 - 2y^2-2z^2 & 2xy + 2wz & 2xz - 2wy \\
-    2xy - 2wz & 1 - 2x^2-2z^2 & 2yz + 2wx \\
-    2xz + 2wy & 2yz-2wx & 1 - 2x^2 - 2y^2
-  \end{bNiceMatrix}
+  \mathbf{A_E} = - \sum_{i=1}^m \mathbf{A_{MSi}}
 \end{equation}
 
-donde $ w $ es la parte escalar y $ x $, $ y $ y $ z $ la parte vectorial del cuaternión.
+donde $ A_{MSi} $ es el vector de acciones fijas en los nodos del elemento aporticado $ i $ en el sistema de coordenadas global. Este vector de fuerzas equivalentes se suma con el vector de fuerzas aplicadas en los nodos de la estructura para formar el vector de fuerzas total.\\
+
+En el algoritmo \ref{alg:LoadPattern-get_f} se presenta la implementación del método \verb|get_f()|. El método recibe los argumentos de entrada obligatorios \verb|flag_displacements| e \verb|indexes|. La variable \verb|flag_displacements| indica para cada grado de libertad si está o no activado, mientras que la variable \verb|indexes| relaciona los objetos tipo \verb|Joint| con sus respectivos grados de libertad. Según los grados de libertad activados se genera el vector de fuerzas total en los nodos de la estructura del caso de carga.\\
+
+El vector de fuerzas aplicadas en los nodos de la estructura se ensambla, a partir de las fuerzas aplicadas en cada nodo de la estructura y sus respectivos grados de libertad, con la función \verb|coo_matrix()|.\\
+
+Para esto, primero se calcula la cantidad de grados de libertad activados y nodos cargados, con la función \verb|count_nonzero| y el método \verb|get_number_point_loads_at_joints()| (véase el algoritimo \ref{alg:LoadPattern-get_number_point_loads_at_joints}), y se almacenan en las variables \verb|no| y \verb|n|, respectivamente.\\
+
+Con estos valores se dimensionan los \emph{arrays} \verb|rows|, \verb|cols| y \verb|data|. Los \emph{arrays} \verb|rows| y \verb|data| se crean con valores arbitrarios, con la función \verb|np.zeros()|, para almacenar los grados de libertad y las fuerzas en los nodos respectivamente, mientras que el \emph{array} \verb|cols| se crea con ceros en todas sus entradas, con la función \verb|np.zeros()|, debido a que el vector de fuerzas en los nodos de la estructura es un vector columna.\\
+
+Finalmente, se crea el vector de fuerzas del caso de carga en los nodos de la estructura, pasando a la función \verb|coo_matrix()| los \emph{arrays} \verb|rows|, \verb|cols| y \verb|data|, y se le resta el vector de fuerzas equivalentes del caso de carga en los nodos, calculada con el método \verb|get_f_fixed()|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_f()} de la clase \texttt{LoadPattern}.,label=alg:LoadPattern-get_f, frame=single]
+def get_f(self, flag_displacements, indexes):
+  """
+  Get the load vector
+
+  Attributes
+  ----------
+  flag_displacements : array
+      Flags active joint's displacements
+  indexes : dict
+      Key value pairs joints and indexes.
+  """
+  no = np.count_nonzero(flag_displacements)
+
+  n = self.get_number_point_loads_at_joints()
+
+  rows = np.empty(n * no, dtype=int)
+  cols = np.zeros(n * no, dtype=int)
+  data = np.empty(n * no)
+
+  for i, (joint, point_load) in enumerate(self.loads_at_joints.items()):
+      rows[i * no:(i + 1) * no] = indexes[joint]
+      data[i * no:(i + 1) * no] = point_load.get_load(flag_displacements)
+
+  return coo_matrix((data, (rows, cols)), (no * len(indexes), 1)) - self.get_f_fixed(flag_displacements, indexes)
+\end{lstlisting}
+
+\subsubsection{get\_f\_fixed()}
+
+El método \verb|get_f_fixed()| de la clase \verb|LoadPattern| calcula el vector de fuerzas equivalente en los nodos de la estructura del caso de carga, representado por objetos tipo \verb|LoadPattern|, con respecto al sistema de coordenadas global.\\
+
+En el algoritmo \ref{alg:LoadPattern-get_f_fixed} se presenta la implementación del método \verb|get_f_fixed()|. El método recibe los argumentos de entrada obligatorios \verb|flag_displacements| e \verb|indexes|. La variable \verb|flag_displacements| indica para cada grado de libertad si está o no activado, mientras que la variable \verb|indexes| relaciona los objetos tipo \verb|Joint| con sus respectivos grados de libertad. Según los grados de libertad activados se genera el vector de fuerzas equivalentes en los nodos de la estructura del caso de carga.\\
+
+El vector de fuerzas equivalentes en los nodos de la estructura se ensambla, a partir de las cargas aplicadas en los elementos aporticados y sus respectivos grados de libertad, con la función \verb|coo_matrix()|.\\
+
+Para esto, primero se calcula la cantidad de grados de libertad activados y elementos aporticados cargados, con la función \verb|count_nonzero| y el método \verb|get_number_distributed_loads()| (véase el algoritmo \ref{alg:LoadPattern-get_number_distributed_loads}), y se almacenan en las variables \verb|no| y \verb|n|, respectivamente.\\
+
+Con estos valores se dimensionan los \emph{arrays} \verb|rows|, \verb|cols| y \verb|data|. Los \emph{arrays} \verb|rows| y \verb|data| se crean con valores arbitrarios, para almacenar los grados de libertad y las fuerzas en los nodos respectivamente, mientras que el \emph{array} \verb|cols| se crea con ceros entodas sus entradas, debido a que el vector de fuerzas equivalente en los nodos de la estructura es un vector columna.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_f\_fixed()} de la clase \texttt{LoadPattern}.,label=alg:LoadPattern-get_f_fixed, frame=single]
+def get_f_fixed(self, flag_joint_displacements, indexes):
+  """
+  Get the f fixed.
+
+  Attributes
+  ----------
+  flag_joint_displacements : array
+      Flags active joint's displacements.
+  indexes : dict
+      Key value pairs joints and indexes.
+  """
+  no = np.count_nonzero(flag_joint_displacements)
+
+  n = self.get_number_distributed_loads()
+
+  rows = np.empty(2 * n * no, dtype=int)
+  cols = np.zeros(2 * n * no, dtype=int)
+  data = np.empty(2 * n * no)
+
+  for i, (frame, distributed_load) in enumerate(self.distributed_loads.items()):
+      joint_j = frame.joint_j
+      joint_k = frame.joint_k
+
+      rows[i * 2 * no:(i + 1) * 2 * no] = np.concatenate((indexes[joint_j], indexes[joint_k]))
+      data[i * 2 * no:(i + 1) * 2 * no] = distributed_load.get_f_fixed(flag_joint_displacements, frame)
+
+  return coo_matrix((data, (rows, cols)), (no * len(indexes), 1))
+\end{lstlisting}
+
+\subsection{PointLoad}
+
+La clase \verb|PointLoad| representa las fuerzas aplicadas en los nodos de la estructura, al establecer el valor de las fuerzas en el sistema de coordenadas global.\\
+
+En el algoritmo \ref{alg:PointLoad} se presenta la implementación de la clase \verb|PointLoad|. Como mecánismo de optimización, se asigna una tupla con los elementos \verb|'fx'|, \verb|'fy'|, \verb|'fz'|, \verb|'mx'|, \verb|'my'| y \verb|'mz'| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia.\\
+
+El constructor de la clase recibe seis argumentos de entrada opcionales, para cada uno de los grados de libertad, los cuales tienen 0 como valor por defecto. El usuario debe indicar el valor de las fuerzas diferentes de cero.\\
+
+Finalmente, la clase \verb|PointLoad| implementa el método \verb|get_load()| que genera un \emph{array} que indica, para cada grado de libertad activado, el valor de la fuerza.
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{PointLoad} implementada en el archivo \texttt{primitives.py}.,label=alg:PointLoad, frame=single]
+class PointLoad(AttrDisplay):
+    """
+    Point load
+
+    Attributes
+    ----------
+    fx : float
+        Force along 'x' axis.
+    fy : float
+        Force along 'y' axis.
+    fz : float
+        Force along 'z'axis.
+    mx : float
+        Force around 'x' axis.
+    my : float
+        Force around 'y' axis.
+    mz : float
+        Force around 'z' axis.
+
+    Methods
+    -------
+     get_load(flag_joint_displacements)
+        Get the load vector.
+    """
+    __slots__ = ('fx', 'fy', 'fz', 'mx', 'my', 'mz')
+
+    def __init__(self, fx=0, fy=0, fz=0, mx=0, my=0, mz=0):
+        """
+        Instantiate a PointLoad object
+
+        Parameters
+        ----------
+        fx : float
+            Force along 'x' axis.
+        fy : float
+            Force along 'y' axis.
+        fz : float
+            Force along 'z' axis.
+        mx : float
+            Force around 'x' axis.
+        my : float
+            Force around 'y' axis.
+        mz : float
+            Force around 'z' axis.
+        """
+        self.fx = fx
+        self.fy = fy
+        self.fz = fz
+
+        self.mx = mx
+        self.my = my
+        self.mz = mz
+
+    def get_load(self, flag_joint_displacements):
+        """
+        Get load
+
+        Parameters
+        ----------
+        flag_joint_displacements : array
+            Flags active joint's displacements.
+        """
+
+        return np.array([getattr(self, name) for name in self.__slots__])[flag_joint_displacements]
+\end{lstlisting}
+
+\subsection{DistributedLoad}
+
+La clase \verb|DistributedLoad| representa las cargas distribuidas aplicadas en los elementos aporticados de la estructura, al establecer el valor de las cargas en el sistema de coordenadas local.\\
+
+En el algoritmo \ref{alg:DistributedLoad} se presenta la implementación de la clase \verb|DistributedLoad|. Como mecánismo de optimización, se asigna una tupla con los elementos \verb|'system'|, \verb|'fx'|, \verb|'fy'| y \verb|'fz'| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instacia.\\
+
+El constructor de la clase recibe tres argumentos de entrada opcionales, para cada una de las cargas distribuidas a lo largo de los ejes principales del sistema de coordenadas local. El usuario debe indicar el valor de las cargas distribuidas diferentes de cero.\\
+
+Finalmente, la clase \verb|DistributedLoad| implementa el método \verb|get_f_fixed()| que genera un \emph{array} que indica, para cada grado de libertad activado, las fuerzas equivalentes en los nodos de la estructura en el sistema de coordenadas global.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{DistributedLoad} implementada en el archivo \texttt{primitives.py}.,label=alg:DistributedLoad, frame=single]
+    class DistributedLoad(AttrDisplay):
+    """
+    Distributed load
+
+    Attributes
+    ----------
+    system: str
+        Coordinate system ('local' by default).
+    fx : float
+        Distributed force along 'x' axis.
+    fy : float
+        Distributed force along 'y' axis.
+    fz : float
+        Distributed force along 'z' axis.
+
+    Methods
+    -------
+    get_load()
+        Get the load vector.
+    """
+    __slots__ = ('system', 'fx', 'fy', 'fz')
+
+    def __init__(self, fx=0, fy=0, fz=0):
+        """
+        Instantiate a Distributed object
+
+        Parameters
+        ----------
+        fx : float
+            Distributed force along 'x' axis.
+        fy : float
+            Distributed force along 'y' axis.
+        fz : float
+            Distributed force along 'z' axis.
+        """
+        self.system = 'local'
+
+        self.fx = fx
+        self.fy = fy
+        self.fz = fz
+
+    def get_f_fixed(self, flag_joint_displacements, frame):
+        """
+        Get f fixed.
+
+        Parameters
+        ----------
+        flag_joint_displacements : array
+            Flags active joint's displacements.
+        frame : Frame
+            Frame.
+        """
+        length = frame.get_length()
+
+        fx = self.fx
+        fy = self.fy
+        fz = self.fz
+
+        f_local = [-fx * length / 2, -fy * length / 2, -fz * length / 2, 0, fz * length ** 2 / 12, -fy * length ** 2 / 12]
+        f_local += [fx * length / 2, -fy * length / 2, -fz * length / 2, 0, -fz * length ** 2 / 12, fy * length ** 2 / 12]
+
+        return np.dot(frame.get_rotation_matrix(flag_joint_displacements), f_local)
+\end{lstlisting}
+
+\subsection{Displacement}
+
+La clase \verb|Displacement| representa los desplazamientos de los nodos de la estructura, al establecer el valor de las translaciones y rotaciones en el sistema de coordenadas global.\\
+
+En el algoritmo \ref{alg:Displacement} se presenta la implementación de la clase \verb|Displacement|. Como mecánismo de optimización, se asigna una tupla con los elementos \verb|'ux'|, \verb|'uy'|, \verb|'uz'|, \verb|'rx'|, \verb|'ry'| y \verb|'rz'| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia.\\
+
+El constructor de la clase recibe seis argumentos de entrada opcionales, para cada uno de los posibles desplazamientos de los nodos en el sistema de coordenadas global. El usuario debe indicar el valor de los desplazamientos diferentes de cero.\\
+
+Finalmente, la clase \verb|Displacement| implementa el método \verb|get_displacements()| que genera un \emph{array} que indica, para cada grado de libertad activado, el valor del desplazamiento.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{Displacement} implementada en el archivo \texttt{primitives.py}.,label=alg:Displacement, frame=single]
+class Displacement(AttrDisplay):
+    """
+    Displacement
+
+    Attributes
+    ----------
+    ux : float
+        Translation along 'x' axis.
+    uy : float
+        Translation along 'y' axis.
+    uz : float
+        Translation along 'z' axis.
+    rx : float
+        Rotation around 'x' axis.
+    ry : float
+        Rotation around 'y' axis.
+    rz : float
+        Rotation around 'z' axis.
+
+    Methods
+    -------
+    get_displacements()
+        Get the displacement vector.
+    """
+    __slots__ = ('ux', 'uy', 'uz', 'rx', 'ry', 'rz')
+
+    def __init__(self, ux=0, uy=0, uz=0, rx=0, ry=0, rz=0):
+        """
+        Instantiate a Displacement
+
+        Parameters
+        ----------
+        ux : float
+            Translation along 'x' axis.
+        uy : float
+            Translation along 'y' axis.
+        uz : float
+            Translation along 'z' axis.
+        rx : float
+            Rotation around 'x' axis.
+        ry : float
+            Rotation around 'y' axis.
+        rz : float
+            Rotation around 'z' axis.
+        """
+        self.ux = ux
+        self.uy = uy
+        self.uz = uz
+
+        self.rx = rx
+        self.ry = ry
+        self.rz = rz
+
+    def get_displacement(self, flag_joint_displacements):
+        """Get displacements"""
+        return np.array([getattr(self, name) for name in self.__slots__])[flag_joint_displacements]
+\end{lstlisting}
+
+\subsection{Reaction}
+
+La clase \verb|Reaction| representa las reacciones de los apoyos de la estructura, al establecer el valor de las reacciones en el sistema de coordenadas global.\\
+
+En el algoritmo \ref{alg:Reaction} se presenta la implementación de la clase \verb|Reaction|. Como mecánismo de optimización, se asigna una tupla con los elementos \verb|'fx'|, \verb|'fy'|, \verb|'fz'|, \verb|'mx'|, \verb|'my'| y \verb|'mz'| al atributo \verb|__slots__| de la clase para indicarle a Python que limite la cantidad de atributos que puede tener una instancia.\\
+
+El constructor de la clase recibe seis argumentos de entrada opcionales, para cada una de las posibles reacciones en el sistema de coordenadas global. El usuario debe indicar el valor de las reacciones diferentes de cero.\\
+
+Finalmente, la clase \verb|Reaction| implementa el método \verb|get_reactions()| que genera un \emph{array} que indica, para cada grado de libertad activado, el valor de la reacción.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{Reaction} implementada en el archivo \texttt{primitives.py}.,label=alg:Reaction, frame=single]
+class Reaction(AttrDisplay):
+"""
+Reaction
+
+Attributes
+----------
+fx : float
+    Force along 'x' axis.
+fy : float
+    Force along 'y' axis.
+fz : float
+    Force along 'z' axis.
+mx : float
+    Moment around 'x' axis.
+my : float
+    Moment around 'y' axis.
+mz : float
+    Moment around 'z' axis.
+
+Methods
+-------
+get_reactions()
+    Get the load vector.
+"""
+__slots__ = ('fx', 'fy', 'fz', 'mx', 'my', 'mz')
+
+def __init__(self, fx=0, fy=0, fz=0, mx=0, my=0, mz=0):
+    """
+    Instantiate a Reaction
+
+    Parameters
+    ----------
+    fx : float
+        Force along 'x' axis.
+    fy : float
+        Force along 'y' axis.
+    fz : float
+        Force along 'z' axis.
+    mx : float
+        Moment around 'x' axis.
+    my : float
+        Moment around 'y' axis.
+    mz : float
+        Moment around 'z' axis.
+    """
+    self.fx = fx
+    self.fy = fy
+    self.fz = fz
+    self.mx = mx
+    self.my = my
+    self.mz = mz
+
+def get_reactions(self, flag_joint_displacements):
+    """Get reactions"""
+    return np.array([getattr(self, name) for name in self.__slots__])[flag_joint_displacements]
+\end{lstlisting}
+
+\section{Structure}
+
+La clase \verb|Structure| representa el modelo de estructuras aporticadas tridimensionales sometidas a cargas estáticas, al agregar objetos que describen la geometría de la estructura, sus condiciones de apoyo y las solicitaciones externas. En la figura \ref{fig:pyFEM-Structure-repetida} se presentan los métodos y atributos de esta clase.\\
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}
+      \node (clase) [class] {\textbf{Structure}};
+  
+      % attrs
+      \node (atributos) [left=of clase, xshift=-1cm]{};
+  
+      % grados de libertad
+      \matrix [
+      matrix of nodes,
+      below=of atributos,
+      nodes={
+        anchor=center
+      }] (gradosLibertad) {
+        \node {ux,}; & \node {uy,}; & \node {uz,};\\
+        \node {rx,}; & \node {ry,}; & \node {rz,};\\
+      };
+  
+      % diccionarios
+      \matrix [
+      matrix of nodes,
+      below=of gradosLibertad,
+      yshift=1cm,
+      nodes={
+        anchor=center
+      }] (diccionarios) {      
+        \node {materials,};\\
+        \node {sections,};\\
+        \node {joints,};\\      
+        \node {frames,};\\
+        \node {supports,};\\      
+        \node {load\_patterns,};\\
+      };
+  
+      % resultados
+      \matrix [
+      matrix of nodes,
+      below=of diccionarios,
+      yshift=1cm,
+      nodes={
+        anchor=center
+      }] (resultados) {      
+        \node {displacements,};\\
+        \node {reactions};\\
+      };
+      
+      % methods
+      \node (aux2) [right=of clase, xshift=1cm]{};
+      \matrix [
+      matrix of nodes,
+      below=of aux2,
+      nodes={
+        anchor=center
+      }] (metodos1) {
+        \node {add\_material(),}; & \node {add\_section(),};\\
+        \node {add\_rectangular\_section(),}; & \node {add\_joint(),};\\
+        \node {add\_frame(),}; & \node {add\_support(),};\\
+        \node {add\_load\_pattern(),}; & \node {add\_load\_at\_joint(),};\\
+      };
+  
+      \matrix [
+      matrix of nodes,
+      below=of metodos1,
+      yshift=1cm,
+      nodes={
+        anchor=center
+      }] (metodos2) {
+        \node {add\_distributed\_load(),};\\
+        \node {get\_flag\_active\_joint\_displacements(),};\\
+        \node {get\_number\_active\_joint\_displacements(),};\\
+      };
+      
+      \matrix [
+      matrix of nodes,
+      below=of metodos2,
+      yshift=1cm,
+      nodes={
+        anchor=center
+      }] (metodos3) {
+        \node {get\_number\_joints(),}; & \node {get\_number\_frames(),};\\
+        \node {set\_indexes(),}; & \node {get\_stiffness\_matrix(),};\\
+      };
+  
+      \matrix [
+      matrix of nodes,
+      below=of metodos3,
+      yshift=1cm,
+      nodes={
+        anchor=center
+      }] (metodos4) {
+        \node {get\_stiffness\_matrix\_with\_support(),};\\
+        \node {solve\_load\_pattern(),};\\
+        \node {set\_load\_pattern\_displacements(),};\\
+      };
+  
+      \matrix[
+      matrix of nodes,
+      below=of metodos4,
+      yshift=1cm,
+      nodes={
+        anchor=center
+      }] (metodos5) {
+        \node {set\_load\_pattern\_reactions(),}; & \node {solve(),};\\
+      };
+      
+      \node [below=of metodos5, yshift=1cm] (metodos6) {export()};
+      
+      \node [atributos, fit=(gradosLibertad) (diccionarios) (resultados)] {};
+      \node [metodos, fit=(metodos1) (metodos2) (metodos3) (metodos4) (metodos5) (metodos6)] {};
+  
+      \draw[myarrow] (gradosLibertad.north) -- ++(0,0) |- ( clase.west);
+      \draw[myarrow] (metodos1.north) -- ++(0,0) |- (clase.east);
+    \end{tikzpicture}
+    \caption{Métodos y atributos de la clase \texttt{Structure} (repetida).}
+    \label{fig:pyFEM-Structure-repetida}
+\end{figure}
+  
+Como se mencionó anteriormente, el constructor de la clase recibe seis argumentos de entrada opcionales, uno para cada grado de libertad, los cuales tienen \verb|False| como valor por defecto. Cuando el usuario crea un objeto de esta clase debe indicar qué grados de libertad quiere tener en cuenta para analizar el modelo (véase el algoritmo \ref{alg:Structure-init}).\\
+
+Con los métodos \verb|add_material()|, \verb|add_section()|, \verb|add_rectangular_section()|, \verb|add_| \verb|joint()|, \verb|add_frame()| y \verb|add_support()| se pueden agregar objetos tipo \verb|Material|, \verb|Section|, \verb|RectangularSection|, \verb|Joint|, \verb|Frame| y \verb|Support|, respectivamente, para describir la geometría y condiciones de apoyo de la estructura.\\
+
+Con los métodos \verb|add_load_pattern()|, \verb|add_load_at_joint()| y \verb|add_distributed_load()| de pueden agregar objetos tipo \verb|LoadPattern|, \verb|PointLoad| y \verb|DistributedLoad|, respectivamente, para describir las cargas de los patrones de carga a los que se encuentra sometida la estructura.\\
+
+A continuación se presentan los demás métodos de la clase \verb|Structure|, con los cuales se puede, entre otras cosas, analizar linealmente el modelo para encontrar los desplazamientos y reacciones de la estructura sometida a los diferentes patrones de carga.\\
+
+\subsection{get\_flag\_active\_joint\_displacements()}
+
+El método \verb|get_flag_active_joint_displacements()| de la clase \verb|Structure| genera un \emph{array} que indica para cada grado de libertad si está o no activado.\\
+
+En el algoritmo \ref{alg:Structure-get_flag_active_joint_displacements} se presenta la implementación del método \verb|get_flag_active_joint_| \verb|displacements()|. El método genera un \emph{array} con los valores de los atributos \verb|ux|, \verb|uy|, \verb|uz|, \verb|rx|, \verb|ry| y \verb|rz| como entradas.
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_flag\_active\_joint\_displacements()} de la clase \texttt{Structure}.,label=alg:Structure-get_flag_active_joint_displacements, frame=single]
+def get_flag_active_joint_displacements(self):
+    """
+    Get active joint displacements
+    
+    Returns
+    -------
+    indexes: array
+        Flag active joint displacements.
+    """
+    return np.array([self.ux, self.uy, self.uz, self.rx, self.ry, self.rz])
+\end{lstlisting}
+
+\subsection{get\_number\_active\_joint\_displacements()}
+
+El método \verb|get_number_active_joint_displacements()| de la clase \verb|Structure| calcula el número de grados de libertad activados.\\
+
+En el algoritmo \ref{alg:Structure-get_number_active_joint_displacements} se presenta la implementación del método \verb|get_number_active_joint_| \verb|displacements()|. El método calcula la cantidad de entradas iguales a \verb|True| del \emph{array} generado por el método \verb|get_flag_active_joint_displacements()| (véase el algoritmo \ref{alg:Structure-get_flag_active_joint_displacements}).\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_number\_active\_joint\_displacements()} de la clase \texttt{Struc} \texttt{ture}.,label=alg:Structure-get_number_active_joint_displacements, frame=single]
+def get_flag_active_joint_displacements(self):
+    """
+    Get active joint displacements
+    
+    Returns
+    -------
+    array
+        Flags active joint displacements.
+    """
+    return np.array([self.ux, self.uy, self.uz, self.rx, self.ry, self.rz])
+\end{lstlisting}
+
+\subsection{get\_number\_joints()}
+El método \verb|get_number_joints()| de la clase \verb|Structure| calcula cantidad de nodos de la estructura.\\
+
+En el algoritmo \ref{alg:Structure-get_number_joints} se presenta la implementación del método \verb|get_number_joints()|. El método calcula la cantidad de entradas que tiene el diccionario \verb|joints|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_number\_joints()} de la clase \texttt{Structure}.,label=alg:Structure-get_number_joints, frame=single]
+def get_number_joints(self):
+    """Get number of joints
+    
+    Returns
+    -------
+    int
+        Number of joints.
+    """
+    return len(self.joints)
+\end{lstlisting}
+
+\subsection{get\_number\_frames()}
+
+El método \verb|get_number_frames()| de la clase \verb|Structure| calcula la cantidad de elementos aporticados de la estructura.\\
+
+En el algoritmo \ref{alg:Structure-get_number_frames} se presenta la implementación del métdo \verb|get_number_frames()|. El método calcula la cantidad de entradas que tiene el diccionario \verb|frames|.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_number\_frames()} de la clase \texttt{Structure}.,label=alg:Structure-get_number_frames, frame=single]
+def get_number_frames(self):
+    """Get number of frames
+    
+    Returns
+    -------
+    int
+        Number of frames
+    """
+    return len(self.frames)
+\end{lstlisting}
+
+\subsection{set\_indexes()}
+
+El método \verb|set_indexes()| de la clase \verb|Structure| genera un diccionario donde las llaves son los nodos de la estructura y los valores los respectivos grados de libertad.\\
+
+En el algoritmo \ref{alg:Structure-set_indexes} se presenta la implementación del método \verb|set_indexes()|. El método crea un diccionario donde las llaves son los objetos tipo \verb|Joint| del diccionario \verb|joints| y los valores \emph{arrays} con los respectivos grados de libertad.\\
+
+Los grados de libertad de cada nodo de la estructura se asignan de manera secuencial en función de la cantidad de grados de libertad activados, calculada con el método \verb|get_number_| \verb|active_joint_displacements()| (véase el algoritmo \ref{alg:Structure-get_number_active_joint_displacements}). Al primer nodo se le asignan los primeros \verb|n| indices, comenzando desde cero, al segundo nodo los siguientes \verb|n| indices y así sucesivamente para cada uno de los demás nodos.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{set\_indexes()} de la clase \texttt{Structure}.,label=alg:Structure-set_indexes, frame=single]
+def set_indexes(self):
+    """Set the indexes"""
+    n = self.get_number_active_joint_displacements()
+
+    return {joint: np.arange(n * i, n * (i + 1)) for i, joint in enumerate(self.joints.values())}
+\end{lstlisting}
+
+\subsection{get\_stiffness\_matrix()}
+
+El método \verb|get_stiffness_matrix()| de la clase \verb|Structure| permite calcular la matriz de rigidez de la estructura.\\
+
+En el algoritmo \ref{alg:Structure-get_stiffness_matrix} se presenta la implementación del método \verb|get_stiffness_matrix()|. El método recibe como argumentos de entrada el diccionario que relaciona los nodos de la estructura con sus respectivos grados de libertad, calculado con el método \verb|set_indexes()| (véase el algoritmo \ref{alg:Structure-set_indexes}). Según los grados de libertad de los nodos de la estructura se ensamblan las matrices de rigidez de los elementos aporticados con la función \verb|coo_matrix()|.\\
+
+Para cada objeto tipo \verb|Frame| del diccionario \verb|frames| se calcula su matriz de rigidez en el sistema de coordenadas global, mediante el método \verb|get_global_stiffness_matrix()| (véase el algoritmo \ref{alg:Frame-get_global_stiffness_matrix}), y se extraen los grados de libertad de los nodos del elemento aporticado del diccionario \verb|indexes|.\\
+
+Con estas variables se describe la matriz de rigidez en coordenadas locales como una matriz dispersa en el formato \emph{ijv}. Los indices de las filas y las columnas se almacenan en los \emph{arrays} \verb|rows| y \verb|cols|, respectivamente, mientras que los valores de la matriz se almacenan en el \emph{array} \verb|data|.\\
+
+Finalmente, se genera la matriz de rigidez de la estructura indicando que se trata de una matriz cuadrada de tamaño del número de grados de libertad activados por la cantidad de nodos de la estructura.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_stiffness\_matrix()} de la clase \texttt{Structure}.,label=alg:Structure-get_stiffness_matrix, frame=single]
+def get_stiffness_matrix(self, indexes):
+    """
+    Get the stiffness matrix of the structure
+
+    Parameters
+    ----------
+    indexes : dict
+        Key value pairs joints and indexes.
+    
+    Returns
+    -------
+    k : coo_matrix
+        Stiffness matrix of the structure.
+    """
+    flag_joint_displacements = self.get_flag_active_joint_displacements()
+    number_active_joint_displacements = np.count_nonzero(flag_joint_displacements)
+
+    number_joints = self.get_number_joints()
+    number_frames = self.get_number_frames()
+
+    # just for elements with two joints
+    n = 2 * number_active_joint_displacements  # change function element type
+    n_2 = n ** 2
+
+    rows = np.empty(number_frames * n_2, dtype=int)
+    cols = np.empty(number_frames * n_2, dtype=int)
+    data = np.empty(number_frames * n_2)
+
+    for i, frame in enumerate(self.frames.values()):
+        k_element = frame.get_global_stiffness_matrix(flag_joint_displacements)
+        indexes_element = np.concatenate((indexes[frame.joint_j], indexes[frame.joint_k]))
+        indexes_element = np.broadcast_to(indexes_element, (n, n))
+
+        rows[i * n_2:(i + 1) * n_2] = indexes_element.flatten('F')
+        cols[i * n_2:(i + 1) * n_2] = indexes_element.flatten()
+        data[i * n_2:(i + 1) * n_2] = k_element.flatten()
+
+    return coo_matrix((data, (rows, cols)), 2 * (number_active_joint_displacements * number_joints,))
+\end{lstlisting}
+
+\subsection{get\_stiffness\_matrix\_with\_support()}
+
+El método \verb|get_stiffness_matrix_with_support()| de la clase \verb|Structure| modifica la matriz de rigidez de la estructura, calculada con el método \verb|get_stiffness_matrix()| (véase el algoritmo \ref{alg:Structure-get_stiffness_matrix}), para tener en cuenta las condiciones de apoyo.\\
+
+Según \cite{reddy1993an}, para tener en cuenta las condiciones de apoyo de la estructura en la matriz de rigidez, se deben reemplazar los valores de las filas y las columnas asociadas a los grados de libertad restringidos por ceros, a excepción de los valores en la diagonal principal, los cuales deben ser reemplazados por 1.\\
+
+En el algoritmo \ref{alg:Structure-get_stiffness_matrix_with_support} se presenta la implementación del método \verb|get_stiffness_matrix_| \verb|with_support()|. El método recibe como argumentos de entrada la matriz de rigidez de la estructura, calculada con el método \verb|get_stiffness_matrix()| (véase el algoritmo \ref{alg:Structure-get_stiffness_matrix}), y el diccionario que relaciona los nodos de la estructura con sus respectivos grados de libertad, calculado con el método \verb|set_indexes()| (véase el algoritmo \ref{alg:Structure-set_indexes}).\\
+
+Para cada objeto tipo \verb|Support| del diccionario \verb|supports| se extraen los grados de libertad del diccionario \verb|indexes| y se calculan las restricciones del apoyo con el método \verb|get_restrains()| (véase el algoritmo \ref{alg:Support}). Estos valores se almacenan en las variables \verb|joint_indexes| y \verb|restrains| respectivamente.\\
+
+Finalmente, para cada grado de libertad restringido se reemplazan los valores asociados de la fila y la columna de la matriz de rigidez de la estructura por ceros y el valor en la diagonal principal por 1.\\
+\pagebreak
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{get\_stiffness\_matrix\_with\_support()} de la clase \texttt{Structure}.,label=alg:Structure-get_stiffness_matrix_with_support, frame=single]
+def get_stiffness_matrix_with_support(self, stiffness_matrix, indexes):
+    """
+    Get the stiffness matrix of the structure with supports
+
+    Parameters
+    ----------
+    stiffness_matrix : ndarray
+        Stiffness matrix of the structure.
+    indexes : dict
+        Key value pairs joints and indexes.
+
+    Returns
+    -------
+    stiffness_matrix_with_supports : ndarray
+        Stiffness matrix of the structure modified by supports.
+    """
+    flag_joint_displacements = self.get_flag_active_joint_displacements()
+    n = np.shape(stiffness_matrix)[0]
+    
+    for joint, support in self.supports.items():
+        joint_indexes = indexes[joint]
+        restrains = support.get_restrains(flag_joint_displacements)
+
+        for index in joint_indexes[restrains]:
+            stiffness_matrix[index] = stiffness_matrix[:, index] = np.zeros(n)
+            stiffness_matrix[index, index] = 1
+    
+    return stiffness_matrix
+\end{lstlisting}
+
+\subsection{solve\_load\_pattern()}
+
+El método \verb|solve_load_pattern()| de la clase \verb|Structure| calcula los vectores de desplazamientos y fuerzas en los nodos de la estructura debidos a las cargas definidas en los patrones de carga.\\
+
+En el algoritmo \ref{alg:Structure-solve_load_pattern} se presenta la implementación del método \verb|solve_load_pattern()|. El método recibe como argumentos de entrada el patrón de carga, representado por objetos tipo \verb|LoadPattern| (véase el algoritmo \ref{alg:LoadPattern-init}), el diccionario que relaciona los nodos de la estructura con sus respectivos grados de libertad, calculado con el método \verb|set_indexes()| (véase el algoritmo \ref{alg:Structure-set_indexes}), la matriz de rigidez de la estructura, calculada con el método \verb|get_stiffness_matrix()| (véase el algoritmo \ref{alg:Structure-get_stiffness_matrix}), y la matriz de rigidez modificada para tener en cuenta las condiciones de apoyo, calculada con el método \verb|get_stiffness_matrix_| \verb|with_support()| (véase el algoritmo \ref{alg:Structure-get_stiffness_matrix_with_support}).\\
+
+Según \cite{reddy1993an}, para tener en cuenta las condiciones de apoyo de la estructura en el vector de fuerzas en los nodos, se deben reemplazar los valores asociado a los grados de libertad restringidos por cero.\\
+
+El vector de fuerzas en los nodos de la estructura del caso de carga se calcula con el método \verb|get_f()| (véase el algoritmo \ref{alg:LoadPattern-get_f}). Para cada objeto tipo \verb|Support| del diccionario \verb|supports| se extraen los respectivos grados de libertad del diccionario \verb|indexes| y se calculan las restricciones del apoyo con el método \verb|get_restrains()| (véase el algoritmo \ref{alg:Support}), para reemplazar los valores asociados a los grados de libertad restringidos del vector de fuerzas en los nodos de la estructura por cero.\\
+
+Finalmente, se calculan los vectores de desplazamientos y fuerzas en los nodos de la estructura, y se almacena los resultados en las variables \verb|u| y \verb|f|, respectivamente.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{solve\_load\_pattern()} de la clase \texttt{Structure}.,label=alg:Structure-solve_load_pattern, frame=single]
+def solve_load_pattern(self, load_pattern, indexes, k, k_support):
+    """
+    Solve load pattern
+
+    Parameters
+    ----------
+    load_pattern : LoadPattern
+        Load pattern object.
+    indexes : dict
+        Key value pairs joints and indexes.
+    k : ndarray
+        Stiffness matrix of the structure.
+    k_support : ndarray
+        Stiffness matrix of the structure modified by supports.
+
+    Returns
+    -------
+    u : ndarray
+        Displacements vector.
+    f : ndarray
+        Forces vector.
+    """
+    flag_joint_displacements = self.get_flag_active_joint_displacements()
+
+    f = load_pattern.get_f(flag_joint_displacements, indexes).toarray()
+
+    for joint, support in self.supports.items():
+        joint_indexes = indexes[joint]
+        restrains = support.get_restrains(flag_joint_displacements)
+        for index in joint_indexes[restrains]:
+            f[index, 0] = 0
+
+    u = np.linalg.solve(k_support, f)
+    f = np.dot(k, u) + load_pattern.get_f_fixed(flag_joint_displacements, indexes).toarray()
+
+    return u, f
+\end{lstlisting}
+
+\subsection{set\_load\_pattern\_displacements()}
+
+El método \verb|set_load_pattern_displacements()| de la clase \verb|Structure| almacena los desplazamientos de los nodos de la estructura, debidos a las cargas definidas en los patrones de carga, en el diccionario \verb|displacements|.\\
+
+En el algoritmo \ref{alg:Structure-set_load_pattern_displacements} se presenta la implementación del método \verb|set_load_pattern_displa| \verb|cements()|. El método recibe como argumentos de entrada el patrón de carga, representado por objetos tipo \verb|LoadPattern| (véase el algoritmo \ref{alg:LoadPattern-init}), el diccionario que relaciona los nodos de la estructura con sus respectivos grados de libertad, calculado con el método \verb|set_indexes()| (véase el algoritmo \ref{alg:Structure-set_indexes}), y el vector de desplazamientos de los nodos de la estructura, calculado con el método \verb|solve_load_pattern()| (véase el algoritmo \ref{alg:Structure-solve_load_pattern}).\\
+
+Para cada objeto tipo \verb|Joint| del diccionario \verb|joints| se crea una entrada en el diccionario \verb|load_pattern_displacements|, donde las llaves son los objeto tipo \verb|Joint| y los valores objetos tipo \verb|Displacements|, creados con los respectivos valores del vector de desplazamientos de los nodos de la estructura (véase el algoritmo \ref{alg:Displacement}).\\
+
+Finalmente, el diccionario \verb|load_pattern_displacements| se almacena en el diccionario \verb|displacements| usando el objeto tipo \verb|LoadPattern| como llave.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{set\_load\_pattern\_displacements()} de la clase \texttt{Structure}.,label=alg:Structure-set_load_pattern_displacements, frame=single]
+def set_load_pattern_displacements(self, load_pattern, indexes, u):
+    """
+    Set load pattern displacement
+
+    Parameters
+    ----------
+    load_pattern : LoadPattern
+        Load pattern.
+    indexes : dict
+        Key value pairs joints and indexes.
+    u : ndarray
+        Displacements.
+    """
+    flag_joint_displacements = self.get_flag_active_joint_displacements()
+    load_pattern_displacements = {}
+
+    for joint in self.joints.values():
+        joint_indexes = indexes[joint]
+        displacements = flag_joint_displacements.astype(float)
+        displacements[flag_joint_displacements] = u[joint_indexes, 0]
+        load_pattern_displacements[joint] = Displacement(*displacements)
+
+    self.displacements[load_pattern] = load_pattern_displacements
+\end{lstlisting}
+
+\subsection{set\_load\_pattern\_reactions()}
+
+El método \verb|set_load_pattern_reactions()| de la clase \verb|Structure| almacena las reacciones de los apoyos de la estructura, debidos a las cargas definidas en los patrones de carga, en el diccionario \verb|reactions|.\\
+
+En el algoritmo \ref{alg:Structure-set_load_pattern_reactions} se presenta la implementación del método \verb|set_load_pattern_reac| \verb|tions()|. El método recibe como argumentos de entrada el patrón de carga, representado por objetos tipo \verb|LoadPattern| (véase el algoritmo \ref{alg:LoadPattern-init}), el diccionario que relaciona los nodos de la estructura con sus respectivos grados de libertad, calculado con el método \verb|set_indexes()| (véase el algoritmo \ref{alg:Structure-set_indexes}), y el vector de fuerzas en los nodos de la estructura, calculado con el método \verb|solve_load_pattern()| (véase el algoritmo \ref{alg:Structure-solve_load_pattern}).\\
+
+Para cada objeto tipo \verb|Support| del diccionario \verb|supports| se crea una entrada en el diccionario \verb|load_pattern_reactions|, donde las llaves son los objetos tipo \verb|Joint| y los valores objetos tipo \verb|Reactions|, creados con los respectivos valores del vector de fuerzas en los nodos de la estructura (véase el algoritmo \ref{alg:Reaction}).\\
+
+Finalmente, el diccionario \verb|load_pattern_reactions| se almacena en el dicionario \verb|reactions| usando el objeto tipo \verb|LoadPattern| como llave.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{set\_load\_pattern\_reactions()} de la clase \texttt{Structure}.,label=alg:Structure-set_load_pattern_reactions, frame=single]
+def set_load_pattern_reactions(self, load_pattern, indexes, f):
+    """
+    Set load pattern reactions
+
+    Parameters
+    ----------
+    load_pattern : LoadPattern
+        Load pattern.
+    indexes : dict
+        Key value pairs joints and indexes.
+    f : ndarray
+        Forces.
+    """
+    flag_joint_displacements = self.get_flag_active_joint_displacements()
+    load_pattern_reactions = {}
+
+    for joint in self.supports.keys():
+        joint_indexes = indexes[joint]
+        reactions = flag_joint_displacements.astype(float)
+        reactions[flag_joint_displacements] = f[joint_indexes, 0]
+        load_pattern_reactions[joint] = Reaction(*reactions)
+
+    self.reactions[load_pattern] = load_pattern_reactions
+\end{lstlisting}
+
+\subsection{solve()}
+
+El método \verb|solve()| de la clase \verb|Structure| analiza el modelo de la estructura sometida a los diferentes patrones de carga y almacena los resultados en los diccionarios \verb|displacements| y \verb|reactions|.\\ 
+
+En el algoritmo \ref{alg:Structure-solve} se presenta la implementación del método \verb|solve()|. El método calcula el diccionario que relaciona los nodos de la estructura con sus respectivos grados de libertad, con el método \verb|set_indexes()| (véase el algoritmo \ref{alg:Structure-set_indexes}), la matriz de rigidez de la estructura, con el método \verb|get_stiffness_matrix()| (véase el algoritmo \ref{alg:Structure-get_stiffness_matrix}), y la matriz de rigidez modificada por las condiciones de apoyo, con el método \verb|get_stiffness_matrix_with_support()| (véase el algoritmo \ref{alg:Structure-get_stiffness_matrix_with_support}).\\
+
+Para cada patrón de carga se calculan los vectores de desplazamientos y fuerzas en los nodos de la estructura y los resultados se almacenan en los diccionarios \verb|displacements| y \verb|reactions| respectivamente.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{solve()} de la clase \texttt{Structure}.,label=alg:Structure-solve, frame=single]
+def solve(self):
+    """Solve the structure"""
+    indexes = self.set_indexes()
+
+    k = self.get_stiffness_matrix(indexes).toarray()
+    k_support = self.get_stiffness_matrix_with_support(k, indexes)
+
+    for load_pattern in self.load_patterns.values():
+        u, f = self.solve_load_pattern(load_pattern, indexes, k, k_support)
+        self.set_load_pattern_displacements(load_pattern, indexes, u)
+        self.set_load_pattern_reactions(load_pattern, indexes, f)
+\end{lstlisting}
+
+\subsection{export()}
+
+El método \verb|export()| de la clase \verb|Structure| genera un archivo de texto en formato JSON con la descripción del modelo para ser interpretado por el programa de computador \emph{FEM.js}.\\
+
+El método almacena los objetos que representan los materiales, las secciones transversales, los nodos, los elementos aporticados, las condiciones de apoyo y los patrones de carga, con sus respectivas cargas, en las entradas \verb|materials|, \verb|sections|, \verb|joints|, \verb|frames|, \verb|supports| y \verb|load_patterns|, respectivamente, usando las mismas llaves con las que fueron agregados al modelo.\\
+
+En el caso donde se usan dichos objetos como llaves para almacenar otros objetos, como es el caso de los objetos tipo \verb|Support| (véase el algoritmo \ref{alg:Structure-add_support}), o como atributos para crear otros, como es el caso de los objetos tipo \verb|Frame| (véase el algoritmo \ref{alg:Structure-add_frame}), se almacenan las llaves con las que fueron agregados al modelo.\\
+
+A continuación se presenta la estructura general que tiene un archivo generado por este método.\\
+
+\begin{lstlisting}[language={}, frame=single]
+{
+    "materials": {
+        "key_material": {
+            "E": 0.0,
+            "G": 0.0
+        },
+        ...
+    },
+    "sections": {
+        "key_section": {
+            "area": 0.0,
+            "Ix": 0.0,
+            "Iy": 0.0,
+            "Iz": 0.0,
+            "type": "Section"
+        },
+        "another_key": {
+            "area": 0.0,
+            "Ix": 0.0,
+            "Iy": 0.0,
+            "Iz": 0.0,
+            "type": "RectangularSection",
+            width: 0.0,
+            height: 0.0
+        },
+        ...
+    },
+    "joints": {
+        "key": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        ...
+    },
+    "frames": {
+        "key": {
+            "j": "key_joint",
+            "k": "another_key_joint",
+            "material": "key_material",
+            "section": "key_section"
+        },
+        ...
+    },
+    "supports": {
+        "key_joint": {
+            "ux": bool,
+            "uy": bool,
+            "uz": bool,
+            "rx": bool,
+            "ry": bool,
+            "rz": bool
+        },
+        ...
+    },
+    "load_patterns": {
+        "key_load_pattern": {
+            "joints": {
+                "key_joint": [
+                    {
+                        "fx": 0.0,
+                        "fy": 0.0,
+                        "fz": 0.0,
+                        "mx": 0.0,
+                        "my": 0.0,
+                        "mz": 0.0
+                    },
+                    ...
+                ],
+                ...
+            },
+            "frames": {
+                "distributed": {
+                    "local": {
+                        "key_frame": {
+                            "fx": 0.0,
+                            "fy": 0.0,
+                            "fz": 0.0
+                        },
+                        ...
+                    }
+                }
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Otras clases}
+
+Las clases presentadas hasta aquí permiten analizar linealmente estructuras aporticadas tridimensionales sometidas a cargas estáticas. Adicional a estas clases, en el archivo \verb|classtools.py| se desarolló la clase \verb|AttrDisplay| y la metaclase \verb|UniqueInstances|, las cuales son heredadas por las demás clases.\\
+
+\subsection{AttrDisplay}
+
+La clase \verb|AttrDisplay| implementa una representación más cómoda de los objetos al redefinir el método \verb|__repr__()|.\\
+
+En el algoritmo \ref{alg:AttrDisplay} se presenta la implementación del método \verb|AttrDisplay|. El método genera una cadena de texto donde aparece el tipo del objeto y entre paréntesis los valores de sus atributos.\\
+
+\begin{lstlisting}[language=Python,caption=Clase \texttt{AttrDisplay} implementada en el archivo \texttt{classtools.py}.,label=alg:AttrDisplay, frame=single]
+class AttrDisplay:
+    __slots__ = ()
+    
+    def __repr__(self):
+        """
+        Get representation object
+        
+        Returns
+        -------
+        str
+        Object representation.
+        """
+        return "{}({})".format(self.__class__.__name__,', '.join([repr(getattr(self, name)) for name in self.__slots__]))
+\end{lstlisting}
+\bigskip
+
+\subsection{UniqueInstances}
+
+La metaclase \verb|UniqueInstances| implementa un mecánismo para evitar crear objetos con los mismos atributos de otros objetos de la misma clase, redefiniendo los métodos \verb|__new__()| y \verb|__call__()|.\\
+
+En el algoritmo \ref{alg:UniqueInstances-new} se presenta la implementación del método \verb|__new__()|. La metaclase redefine la creación de las clases que la implementan, asignándoles un \emph{set}, inicialmente vacío, y \emph{sobrecargando} sus métodos \verb|__setattr__()| y \verb|__del__()|.\\
+
+En el \emph{set} \verb|instances_attrs| se lleva el registro de los atributos de los objetos existentes de la misma clase, mientras que los métodos \verb|__setattr__()| y \verb|__del__()| actualizan el \emph{set} cuando un atributo de cualquier objeto cambia o cuando el objeto es eliminado, respectivamente.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{\_\_new\_\_()} de la metaclase \texttt{UniqueInstances}.,label=alg:UniqueInstances-new, frame=single]
+def __new__(mcs, name, bases, dct):
+    """
+    Create a class
+
+    Parameters
+    ----------
+    name : str
+        Class name.
+    bases : tuple
+        Parent classes.
+    dct : dict
+        Namespace's class.
+    """
+    if '__slots__' in dct:
+        dct['instances_attrs'] = set()
+        dct['__setattr__'] = UniqueInstances.setattr
+        dct['__del__'] = UniqueInstances.delete
+
+        return type.__new__(mcs, name, bases, dct)
+    else:
+        print("Warning: " +
+            "Classes created with the UniqueInstances metaclass must implement the " +
+            "'__slots__ ' variable. The class was not created.")
+\end{lstlisting}
+\bigskip
+
+En el algoritmo \ref{alg:UniqueInstances-setattr} se presenta la implementación de la función \verb|setattr|, la cual redefine el método \verb|__setattr__()| de las clases que implementan la metaclase \verb|UniqueInstances|.\\
+
+Antes que cambie el valor de un atributo de un objeto, este método verifica que los nuevos valores de sus atributos no los tenga ya otro objeto de la misma clase, revisando los elementos almacenados en el \emph{set} \verb|instances_attrs| de la clase.\\
+
+En caso que no existan objetos con los mismos atributos, se cambia el atributo del objeto y se actualiza el \emph{set} \verb|instances_attrs|. En caso contrario, no se modifica el objeto.\\
+
+\begin{lstlisting}[language=Python,caption=Función \texttt{setattr} implementada en la clase \texttt{UniqueInstances}.,label=alg:UniqueInstances-setattr, frame=single]
+def setattr(self, key, value):
+    """
+    Set attribute object if doesn't collide with attributes another object
+
+    Parameters
+    ----------
+    key : string
+        Key's attribute to modified.
+    value : value
+        Value to assign.
+    """
+    if hasattr(self, key):
+        # get instances attrs and instance attrs
+        instances_attrs = getattr(self.__class__, 'instances_attrs')
+        instance_attrs = tuple(getattr(self, name) for name in self.__slots__)
+
+        # get possible new instance attrs
+        _instance_attrs = tuple((getattr(self, _key) if _key != key
+                                    else value for _key in self.__slots__))
+
+        # add new instance attrs if not in instances attrs
+        if _instance_attrs in instances_attrs:
+            print("Warning: " +
+                    "There is another instance of the class " +
+                    "'{}'".format(self.__class__.__name__) +
+                    " with the same attributes. The object was not changed.")
+
+            return None
+        else:
+            instances_attrs.remove(instance_attrs)
+            instances_attrs.add(_instance_attrs)
+
+    self.__class__.__dict__[key].__set__(self, value)
+\end{lstlisting}
+\bigskip
+
+En el algoritmo \ref{alg:UniqueInstances-delete} se presenta la implementación de la función \verb|delete()|, la cual redefine el método \verb|__del__()| de las clases que implementan la metaclase \verb|UniqueInstances|.\\
+
+Antes de eliminar todas las referencias a un objeto, este método elimina la entrada asociada del \emph{set} \verb|instances_attrs| de la clase.\\
+
+\begin{lstlisting}[language=Python,caption=Function \texttt{delete} implementada en la clase \texttt{UniqueInstances}.,label=alg:UniqueInstances-delete, frame=single]
+def delete(self):
+    getattr(self.__class__, 'instances_attrs').remove(tuple(getattr(self, name) for name in self.__slots__))
+\end{lstlisting}
+\bigskip
+
+Finalmente, en el algoritmo \ref{alg:UniqueInstances-call} se presenta la implementación del método \verb|__call__()|. La metaclase evita que se creen objetos con los mismos atributos de otros objetos de la misma clase ya creados, revisando que los atributos del objeto a crear no se encuentren en el \emph{set} \verb|instances_attrs| de la clase.\\
+
+\begin{lstlisting}[language=Python,caption=Método \texttt{\_\_call\_\_} de la metaclase \texttt{UniqueInstances}.,label=alg:UniqueInstances-call, frame=single]
+    def setattr(self, key, value):
+def __call__(cls, *args, **kwargs):
+    """
+    Return an instances if it does not already exist otherwise return None
+
+    """
+    # get __init__ class
+    init = cls.__init__
+
+    # get init's arguments and default values
+    varnames = getattr(getattr(init, '__code__'), 'co_varnames')[len(args) + 1:]
+    default = getattr(init, '__defaults__')
+
+    # create list with args
+    instance_attrs = list(args)
+
+    # fill instance_attrs with kwargs or init's default values
+    for i, key in enumerate(varnames):
+        instance_attrs.append(kwargs.get(key, default[i]))
+
+    # from list to tuple
+    instance_attrs = tuple(instance_attrs)  # FIXME: i don't need necessary check all params
+
+    # get obj's attrs and instances attrs class
+    instances_attrs = getattr(cls, 'instances_attrs')
+
+    # check obj's attrs don't be in instances attrs class
+    if instance_attrs in instances_attrs:
+        print("Warning: " +
+                "There is another instance of the class " +
+                "'{}' ".format(cls.__name__) +
+                "with the same attributes. The object was not created.")
+    else:
+        # add obj's attrs to instances attrs
+        instances_attrs.add(instance_attrs)
+
+        # create and instantiate the object
+        obj = cls.__new__(cls, *args, **kwargs)
+        obj.__init__(*args, **kwargs)
+
+        return obj
+\end{lstlisting}

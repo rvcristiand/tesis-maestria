@@ -1,7 +1,7 @@
 \documentclass[12pt,spanish,fleqn,openany,letterpaper,pagesize]{scrbook}
 
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish,es-noshorthands]{babel}
 \usepackage{fancyhdr}
 \usepackage{epsfig}
 \usepackage{epic}
@@ -23,10 +23,15 @@
 \usepackage{blkarray}
 
 % Me
+\usepackage{gensymb}
+\usepackage{float}
+
 \usepackage{multicol}
 \setlength{\columnseprule}{0.4pt}
 
 \usepackage{tikz}
+\usetikzlibrary{positioning,shapes,shadows,arrows,fit,matrix}
+
 \usepackage[hidelinks]{hyperref}
 \usepackage{siunitx}
 \usepackage{stanli}
@@ -201,8 +206,16 @@
 
 
 \begin{document}
+
+\tikzstyle{class}=[rectangle, draw=black, rounded corners, text centered, anchor=north, text width=3cm] % drop shadow, fill=blue!40, text=white,
+\tikzstyle{atributos}=[rectangle, draw=black, anchor=center]
+\tikzstyle{metodos}=[rectangle, draw=black, anchor=north]
+\tikzstyle{comment}=[rectangle, draw=black, rounded corners, fill=green, drop shadow, text centered, anchor=north, text=white, text width=3cm]
+\tikzstyle{myarrow}=[->, >=open triangle 90, thick]
+\tikzstyle{line}=[-, thick]
+
 \pagenumbering{roman}
-\include{HojaTitulo/HojaTituloMSc}
+% \include{HojaTitulo/HojaTituloMSc}
 
 \renewcommand{\tablename}{\textbf{Tabla}}
 \renewcommand{\figurename}{\textbf{Figura}}
@@ -231,7 +244,7 @@
 \pagenumbering{arabic}
 
 % \include{MarcoTeorico/MarcoTeorico}
-\include{introduction/introduction}
+% \include{introduction/introduction}
 \include{pyFEM/pyFEM}
 % \include{metodologia/Metodologia}
 % \include{ejemplos_aplicacion/ejemplos_aplicacion}
