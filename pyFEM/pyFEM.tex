@@ -505,6 +505,7 @@ En el algoritmo \ref{alg:Joint} se presenta la implementación de la clase \verb
 El constructor de la clase recibe tres argumentos de entrada opcionales, uno para cada una de las coordenadas, los cuales tienen $ 0 $ como valor por defecto. Estos valores son pasados a los atributos \verb|x|, \verb|y| y \verb|z| del objeto respectivamente.\\
 
 Finalmente, la clase \verb|Joint| implementa el método \verb|get_coordinate()| que generar una \emph{array} con las coordenadas del objeto.\\
+\pagebreak
 
 \begin{lstlisting}[language=Python,caption=Clase \texttt{Joint} implementada en el archivo \texttt{primitives.py}.,label=alg:Joint, frame=single]
 class Joint(AttrDisplay, metaclass=UniqueInstances):
@@ -723,7 +724,6 @@ Según \cite{2020SciPy-NMeth}, esta función calcula la distancia euclidiana ent
 \end{equation}
 
 donde \verb|w| es un \emph{array} que toma para cada entrada un peso de $ 1 $ por defecto.\\ 
-\pagebreak
 
 \begin{lstlisting}[language=Python,caption=Método \texttt{get\_length()} de la clase \texttt{Frame}.,label=alg:Frame-get_length, frame=single]
 def get_length(self):
@@ -1507,6 +1507,7 @@ En el algoritmo \ref{alg:Displacement} se presenta la implementación de la clas
 El constructor de la clase recibe seis argumentos de entrada opcionales, para cada uno de los posibles desplazamientos de los nodos en el sistema de coordenadas global. El usuario debe indicar el valor de los desplazamientos diferentes de cero.\\
 
 Finalmente, la clase \verb|Displacement| implementa el método \verb|get_displacements()| que genera un \emph{array} que indica, para cada grado de libertad activado, el valor del desplazamiento.\\
+\pagebreak
 
 \begin{lstlisting}[language=Python,caption=Clase \texttt{Displacement} implementada en el archivo \texttt{primitives.py}.,label=alg:Displacement, frame=single]
 class Displacement(AttrDisplay):
@@ -1918,7 +1919,6 @@ En el algoritmo \ref{alg:Structure-get_stiffness_matrix_with_support} se present
 Para cada objeto tipo \verb|Support| del diccionario \verb|supports| se extraen los grados de libertad del diccionario \verb|indexes| y se calculan las restricciones del apoyo con el método \verb|get_restrains()| (véase el algoritmo \ref{alg:Support}). Estos valores se almacenan en las variables \verb|joint_indexes| y \verb|restrains| respectivamente.\\
 
 Finalmente, para cada grado de libertad restringido se reemplazan los valores asociados de la fila y la columna de la matriz de rigidez de la estructura por ceros y el valor en la diagonal principal por 1.\\
-\pagebreak
 
 \begin{lstlisting}[language=Python,caption=Método \texttt{get\_stiffness\_matrix\_with\_support()} de la clase \texttt{Structure}.,label=alg:Structure-get_stiffness_matrix_with_support, frame=single]
 def get_stiffness_matrix_with_support(self, stiffness_matrix, indexes):
