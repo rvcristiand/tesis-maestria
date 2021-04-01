@@ -31,6 +31,9 @@
 
 \usepackage{tikz}
 \usetikzlibrary{positioning,shapes,shadows,arrows,fit,matrix}
+\usetikzlibrary{graphdrawing}
+\usetikzlibrary{graphs}
+\usegdlibrary{trees}
 
 \usepackage[hidelinks]{hyperref}
 \usepackage{siunitx}
@@ -215,7 +218,7 @@
 \tikzstyle{line}=[-, thick]
 
 \pagenumbering{roman}
-\include{HojaTitulo/HojaTituloMSc}
+% \include{HojaTitulo/HojaTituloMSc}
 
 \renewcommand{\tablename}{\textbf{Tabla}}
 \renewcommand{\figurename}{\textbf{Figura}}
@@ -244,8 +247,9 @@
 \pagenumbering{arabic}
 
 % \include{MarcoTeorico/MarcoTeorico}
-\include{introduction/introduction}
-\include{pyFEM/pyFEM}
+% \include{introduction/introduction}
+% \include{pyFEM/pyFEM}
+\include{FEM.js/FEM.js}
 % \include{metodologia/Metodologia}
 % \include{ejemplos_aplicacion/ejemplos_aplicacion}
 % \include{analisis_resultados/analisis_resultados}
