@@ -43,10 +43,14 @@
 \usepackage{color}
 \usepackage{breakcites}
 
-\usepackage[style=apa,citestyle=apa]{biblatex}
+\usepackage{csquotes}
+\usepackage[style=apa, backend=biber]{biblatex}
+\DeclareLanguageMapping{spanish}{spanish-apa}
 \DefineBibliographyStrings{spanish}{%
-  andothers = {et al}
-  }
+  andothers = {\emph{et~al}\adddot},
+  bibliography = {Referencias}
+}
+\decimalpoint
 \addbibresource{BibliMSc.bib}
 
 \usepackage{nicematrix}
@@ -54,7 +58,7 @@
 
 \usepackage{tikz-imagelabels}
 \imagelabelset{
-	outer dist = -0.5 cm
+  outer dist = -0.5 cm
 }
 
 \usepackage{dirtree}
@@ -80,61 +84,68 @@
   numberstyle=\tiny\color{codegray},
   stringstyle=\color{codepurple},
   basicstyle=\footnotesize,
-  breakatwhitespace=false,         
-  breaklines=true,                 
-  captionpos=top,                    
-  keepspaces=true,                 
-%   numbers=left,                    
-  numbersep=5pt,                  
-  showspaces=false,                
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=top,
+  keepspaces=true,
+%   numbers=left,
+  numbersep=5pt,
+  showspaces=false,
   showstringspaces=false,
-  showtabs=false,                  
+  showtabs=false,
   tabsize=2
 }
 
 %"mystyle" code listing set
 \lstset{style=mystyle}
 
-% Formato de definiciones y ejemplos 
+% Formato de definiciones y ejemplos
 \usepackage[listingsutf8,breakable,many]{tcolorbox}
 % \tcbuselibrary{minted}
 
+% Nota: para hacer algunas anotaciones en la revisión
+\newtcolorbox{nota}{
+  sidebyside,
+  colframe = red,
+  collower = red!90!black
+}
+
 % Caja sin título
 \newtcolorbox{cajasimple}{
-	breakable,
-	%    colframe = red!80!black,
-	boxrule = 0.1mm,
-	arc = 0.5mm,
-	fonttitle = \bfseries
+  breakable,
+  %    colframe = red!80!black,
+  boxrule = 0.1mm,
+  arc = 0.5mm,
+  fonttitle = \bfseries
 }
 
 % Caja con título
 \newtcolorbox[auto counter]{caja}[1][]{
-	breakable,
-	title = \thetcbcounter. #1,
-	%    colframe = red!80!black,
-	boxrule = 0.1mm,
-	arc = 0.5mm,
-	fonttitle = \bfseries
+  breakable,
+  title = \thetcbcounter. #1,
+  %    colframe = red!80!black,
+  boxrule = 0.1mm,
+  arc = 0.5mm,
+  fonttitle = \bfseries
 }
 
 % Definiciones
 \newtcolorbox{defin}[1][]{
-	title = #1,
-	colframe = red!80!black,
-	boxrule = 0.1mm,
-	arc = 0.5mm,
-	fonttitle = \bfseries
+  title = #1,
+  colframe = red!80!black,
+  boxrule = 0.1mm,
+  arc = 0.5mm,
+  fonttitle = \bfseries
 }
 
 % Ejemplos
 \newtcolorbox{ejemplo}{
-	breakable,
-	title={Ejemplo},
-	colframe = blue!80!black,
-	boxrule = 0.1mm,
-	arc = 0.5mm,
-	fonttitle = \bfseries
+  breakable,
+  title={Ejemplo},
+  colframe = blue!80!black,
+  boxrule = 0.1mm,
+  arc = 0.5mm,
+  fonttitle = \bfseries
 }
 
 \newtcblisting{mylisting}{
@@ -148,17 +159,17 @@
 
 % Códigos de programación
 \newtcblisting{codigoprog}[1][]{
-	listing only,
-	breakable,
-	title = #1,
-	%colframe = green!30!black,
-	boxrule = 0.1mm,
-	arc = 0.5mm,
-	fonttitle = \bfseries
+  listing only,
+  breakable,
+  title = #1,
+  %colframe = green!30!black,
+  boxrule = 0.1mm,
+  arc = 0.5mm,
+  fonttitle = \bfseries
 }
 
 \usepackage{rotating} %Para rotar texto, objetos y tablas seite. No se ve en DVI solo en PS. Seite 328 Hundebuch
-                        %se usa junto con \rotate, \sidewidestable ....
+                      %se usa junto con \rotate, \sidewidestable ....
 
 
 \renewcommand{\theequation}{\thechapter-\arabic{equation}}
@@ -198,11 +209,11 @@
 \usepackage{Befehle}
 %Inicio del documento. Tener en cuenta que hay archivos auxiliares
 
-% Select what to do with todonotes: 
+% Select what to do with todonotes:
 % \usepackage[disable]{todonotes} % notes not showed
 \usepackage[draft]{todonotes}   % notes showed
 
-% Select what to do with command \comment:  
+% Select what to do with command \comment:
 % \newcommand{\comment}[1]{}  %comment not showed
 % \newcommand{\comment}[1]
 % {\par {\bfseries \color{blue} #1 \par}} %comment showed

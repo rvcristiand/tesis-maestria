@@ -1,37 +1,54 @@
 \chapter{Introducción}
 \label{chap:antecedentes}
 
+\begin{nota}
 Los programas de computador comerciales para el análisis y diseño de estructuras que se encuentran vigentes a la fecha cuentan, en general, con un entorno gráfico que le permite al usuario describir el modelo de forma interactiva, procesarlo y visualizar los resultados de manera conveniente.\\
+\tcblower
+Creo que este primer párrafo debe ser algo más relacionado con la importancia de tener programas de computador para el análisis estructural, y luego, la importancia de que esos programas sean libres y permitan el escrutinio y modificación por parte de los usuarios y desarrolladores del país. Pongo algo de la propuesta que se presentó hace tiempos, pero creo que se puede completar.
+\end{nota}
 
-En \cite{escamilla1995microcomputadores} se presenta una lista de algunos de estos programas de uso común en América Latina, entre los cuales se encuentra \emph{ETABS} (Three Dimensional Analysis of Building Systems - Extended Version).\\
+El fundamento teórico de los métodos matriciales para el análisis de estructuras fue propuesto por George A. Maney, quien desarrolló el método de pendiente deflexión en 1915. Por ello algunos lo consideran como el precursor del método matricial por rigideces y se hacen notar que la principal desventaja de este método en su tiempo fue la solución simultanea de múltiples ecuaciones algebraicas \parencite{Kassimali2011}.
 
-ETABS es un programa de computador creado por Edward Wilson, Jeffery Hollings y Henry Dovey en 1975. Según \cite{ETABS1975}, este programa de computador fue desarrollado para el análisis estructural lineal de edificios de pórticos y muros a cortante sujetos tanto a cargas estáticas como sísmicas. El edificio es idealizado como un sistema de elementos aporticados y muros a cortante independientes interconectado por losas de entrepiso las cuales son rígidas en su propio plano.\\
+Con la llegada de los computadores se inició el desarrollo de programas de análisis estructural en las universidades. Uno de los primeros en ser desarrollados fue \emph{STRESS} (Structural Engineering System Solver) en el MIT (Massachusetts Institute Technology) en 1964, que marcó un hito en el empleo de los computadores. \emph{STRESS} se convirtió en un lenguaje de programación que permitía analizar estructuras al describirlas en tarjetas perforadas mediante la numeración de los nodos y sus respectivas coordenadas en el espacio, la numeración de los elementos tipo pórtico y sus respectivos nudos, la aplicación de cargas en los elementos y las condiciones de apoyo.
 
-Este programa es una extensión de \emph{TABS} (Three Dimensional Analysis of  Building Systems) para poder analizar pórticos tridimensionales. Según \cite{ETABS1972}, una de las razones para desarrollar TABS fue darle una retroalimentación a los usuarios de los programas \emph{FRMSTC} (Static Load Analysis of High-Rise Buildings), \emph{FRMDYN} (Dynamic Analysis of Multistory Buildings), \emph{LATERAL} y \emph{SOLID SAP} (Static Analysis Program for Three-Dimensional Solid Structures).\\
+Aunque un gran número de ingenieros han desarrollado programas de análisis estructural para aprovechar la capacidad de cálculo de los computadores, una reseña que incluya todos los programas sería casi interminable. En \textcite{escamilla1995microcomputadores} se presenta una buena selección de algunos de estos programas de uso común en América Latina, de la cual se hará un resumen a continuación, incluyendo \emph{ETABS} (Three Dimensional Analysis of Building Systems - Extended Version).\\
 
-FRMSTC permitía analizar edificios simétricos con pórticos y muros a cortante paralelos sujetos a cargas estáticas y evaluar los modos y las frecuencias. FRMDYN era similar a FRMSTC con la excepción que la carga era la aceleración del terreno debido a un desplazamiento dependiente del tiempo. LATERAL fue una extensión de FRMSTC que permitía analizar linealmente pórticos y muros a cortante que no eran necesariamente paralelos con tres grados de libertad en cada piso. SOLID SAP era un programa general de elementos finitos y tenía una opción que permitía introducir la aproximación de piso rígido. Este programa también tenía la opción de realizar análisis dinámico.\\
+\begin{nota}
+\emph{ETABS} es un programa de computador creado por Edward Wilson, Jeffery Hollings y Henry Dovey en 1975. Según \textcite{ETABS1975}, este programa de computador fue desarrollado para el análisis estructural lineal de edificios de pórticos y muros a cortante sujetos a cargas estáticas y dinámicas, como las sísmicas. El edificio es idealizado como un sistema de elementos aporticados y muros a cortante independientes interconectado por losas de entrepiso consideradas diafragmas rígidos. Este programa es una extensión de \emph{TABS} (Three Dimensional Analysis of Building Systems), el cual fue concebido para analizar pórticos tridimensionales. Para \textcite{ETABS1972}, una de las razones para desarrollar \emph{TABS} fue darle una retroalimentación a los usuarios de los programas \emph{FRMSTC} (Static Load Analysis of High-Rise Buildings), \emph{FRMDYN} (Dynamic Analysis of Multistory Buildings), \emph{LATERAL} y \emph{SOLID SAP} (Static Analysis Program for Three-Dimensional Solid Structures).\\
+\tcblower
+Si se puede, agregar las fechas de los programas
+\end{nota}
 
-En la actualidad, ETABS se encuentra en la versión 18.1.1 y según \cite{ETABS2020systemrequirements}, puede ser ejecutado en computadores con sistema operativo Windows 7, Windows 8 o Windows 10 con arquitectura de 64 bits que cuenten como mínimo con un procesador Intel Pentium 4 o AMD Athlon 64, una resolución de 1024x768 pixeles con 16 bits por canal, 8 GB de RAM y 6 GB de espacio en el disco duro. En la figura \ref{fig:etabs_start_page} se presenta la ventana del programa ETABS ejecutándose en un computador con Windows 10.\\
+\emph{FRMSTC} permitía analizar edificios simétricos con pórticos y muros a cortante paralelos sujetos a cargas estáticas, con capacidad para evaluar los modos y las frecuencias de vibración. \emph{FRMDYN} era similar, pero las acciones externas consistían en imponer la aceleración del terreno debido a un desplazamiento dependiente del tiempo. Por su lado, \emph{LATERAL} fue una extensión de \emph{FRMSTC} que permitía analizar linealmente pórticos y muros a cortante que no eran necesariamente paralelos, con tres grados de libertad en cada piso. \emph{SOLID SAP} se escribió como un programa general de elementos finitos con una opción particular para considerar la aproximación de diafragma rígido. En este último se podían realizar análisis estáticos y dinámicos de las estructuras.\\
 
-\begin{figure}[ht]
-  \centering
-  \begin{annotationimage}{width=0.5\textwidth}{introduction/etabs-startup.png}
-    \draw[annotation left = {{Barra de título} at 0.91}] to (0.15, 0.81);
-    \draw[annotation left = {{Barra de menús} at 0.7}] to (0.15, 0.8);
-    \draw[annotation left = {{Explorador del modelo} at 0.5}] to (0.18, 0.65);
-    \draw[annotation left = {{Barra de herramientas} at 0.3}] to (0.15, 0.4);
-    \draw[annotation left = {{Barra de estado} at 0.125}] to (0.15, 0.225);
-    \draw[annotation right = {{Barra de herramientas} at 0.655}] to (0.84, 0.765);
-    \draw[annotation right = {{Vista del modelo} at 0.47}] to (0.75, 0.67);
-    \draw[annotation right = {{Indicador de actualizaciones} at 0.86}] to (0.85, 0.76);
-  \end{annotationimage}
-  \caption{Ventana del programa ETABS ejecutandose en Windows 10.}
-  \label{fig:etabs_start_page}
-\end{figure}
+Los programas enunciados anteriormente fueron algunos de los precursores de los programas comerciales actuales para el análisis de estructuras, pero su interacción con los usuarios, exclusivamente mediante archivos de texto y ventanas de comandos, no tuvo un completa aceptación entre los ingenieros. Ello evolucionó, naturalmente, en desarrollos importantes en dos frentes: los programas de análisis y las interfaces de pre- y pos-proceso. 
 
-A través de múltiples cuadros de diálogo, los cuales son accesibles ya sea a través de la barra de menús, las barras de herramientas, el explorador del modelo, las vistas del modelo o con atajos de teclado, el usuario es capaz de modelar la estructura que desea analizar al describir los materiales, las secciones transversales, los elementos estructurales, las condiciones de apoyo, los diafragmas y las cargas.\\
+En la actualidad, \emph{ETABS} se encuentra en la versión 18.1.1 y, según \cite{ETABS2020systemrequirements}, puede hacer análisis estructurales estáticos y dinámicos con gran variedad de estructuras, {\color{red}considerando linealidad o no linealidad material o geométrica --> VERIFICAR}. Además, cuenta con una interfaz gráfica amigable. A través de múltiples cuadros de diálogo, los cuales son accesibles mediante la barra de menús, las barras de herramientas, el explorador del modelo, las vistas del modelo o con atajos de teclado, el usuario puede modelar la estructura que desea analizar al describir los materiales, las secciones transversales, los elementos estructurales, las condiciones de apoyo, los diafragmas y las cargas.\\
 
-Según \cite{ETABS2017analysisreferencemanual}, ETABS analiza el modelo usando el motor de análisis \emph{SAPFire}, el cual es común a otros programas de la misma compañia (\emph{SAP2000}, \emph{SAFE} y \emph{CSiBridge}). SAPFire es la última versión de la serie de programas \emph{SAP} y ofrece las siguientes herramientas:
+% En la figura \ref{fig:etabs_start_page} se presenta la ventana del programa ETABS ejecutándose en un computador con Windows 10.\\
+
+% ser ejecutado en computadores con sistema operativo Windows 7, Windows 8 o Windows 10 con arquitectura de 64 bits que cuenten como mínimo con un procesador Intel Pentium 4 o AMD Athlon 64, una resolución de 1024x768 pixeles con 16 bits por canal, 8 GB de RAM y 6 GB de espacio en el disco duro. 
+
+
+% \begin{figure}[ht]
+%   \centering
+%   \begin{annotationimage}{width=0.5\textwidth}{introduction/etabs-startup.png}
+%     \draw[annotation left = {{Barra de título} at 0.91}] to (0.15, 0.81);
+%     \draw[annotation left = {{Barra de menús} at 0.7}] to (0.15, 0.8);
+%     \draw[annotation left = {{Explorador del modelo} at 0.5}] to (0.18, 0.65);
+%     \draw[annotation left = {{Barra de herramientas} at 0.3}] to (0.15, 0.4);
+%     \draw[annotation left = {{Barra de estado} at 0.125}] to (0.15, 0.225);
+%     \draw[annotation right = {{Barra de herramientas} at 0.655}] to (0.84, 0.765);
+%     \draw[annotation right = {{Vista del modelo} at 0.47}] to (0.75, 0.67);
+%     \draw[annotation right = {{Indicador de actualizaciones} at 0.86}] to (0.85, 0.76);
+%   \end{annotationimage}
+%   \caption{Ventana del programa ETABS ejecutandose en Windows 10.}
+%   \label{fig:etabs_start_page}
+% \end{figure}
+
+
+Según \cite{ETABS2017analysisreferencemanual}, ETABS analiza el modelo usando el motor de análisis \emph{SAPFire}, el cual es común a otros programas de la misma compañia (\emph{SAP2000}, \emph{SAFE} y \emph{CSiBridge}). \emph{SAPFire} es la última versión de la serie de programas \emph{SAP} y ofrece las siguientes herramientas:
+
 \begin{itemize}
 \item Análisis estático y dinámico,
 \item Análisis lineal y no lineal,
@@ -50,11 +67,42 @@ Según \cite{ETABS2017analysisreferencemanual}, ETABS analiza el modelo usando e
 \item Propiedades de los resortes y apoyos dependientes de la frecuencia,
 \end{itemize}
 
-Con los resultados del análisis del modelo, el posprocesador de ETABS puede \emph{diseñar} los elementos estructurales de acuerdo a uno de varios códigos de diseño de diferentes países. ETABS es capaz de diseñar pórticos en acero, pórticos en concreto, vigas compuestas, columnas compuestas, vigas en acero de alma abierta (\emph{steel joist}), muros a cortante y losas de concreto.\\
+% Con los resultados del análisis del modelo, el posprocesador de ETABS puede \emph{diseñar} los elementos estructurales de acuerdo a uno de varios códigos de diseño de diferentes países. ETABS es capaz de diseñar pórticos en acero, pórticos en concreto, vigas compuestas, columnas compuestas, vigas en acero de alma abierta (\emph{steel joist}), muros a cortante y losas de concreto.\\
 
-Adicionalmente, según \cite{ETABS2019welcome}, ETABS cuenta con la posibilidad de generar dibujos estructurales esquemáticos de las plantas estructurales, de los despieces de vigas, columnas y muros a cortante, y de los detalles de las conexiones de acero.\\
+% Adicionalmente, según \cite{ETABS2019welcome}, ETABS cuenta con la posibilidad de generar dibujos estructurales esquemáticos de las plantas estructurales, de los despieces de vigas, columnas y muros a cortante, y de los detalles de las conexiones de acero.\\
 
-En términos generales, estos programas de computador comerciales cuenta con características similares a las de ETABS. Actualmente, dichos programas están innovando para permitirle al usuario trabajar con modelos \emph{BIM} (Building Information Modeling).\\
+\begin{nota}
+En el mercado existen otros programas comerciales de análisis estructural, como \emph{TEKLA}, \emph{MIDAS}, {\color{red}... cuáles???}. En términos generales, todos ellos cuentan con características similares a las descritas para \emph{ETABS}. Actualmente, dichos programas están innovando para permitirle al usuario trabajar con modelos \emph{BIM} (Building Information Modeling).\\
+\tcblower
+  Creo que vala la pena hacer una tabla con una lista de programas de análisis estructural, que contenga: desarrollador, país, lenguaje, licencia, tipo de análisis (resumido), Interfaz gráfica (Si o No). En ella se deberán incluir los programas comerciales y algunos de los programas gratis, tipo OpenSees u Onsas.
+\end{nota}
+
+Adicionalmente, en el mercado existen numerosos programas generales para realizar análisis numéricos con el método de los elementos finitos. Aunque es posible realizar análisis estructurales con algunos de ellos, no están diseñados específicamente para eso, por lo cual no se incluyen en esta reseña.
+
+\section{Problema} % No sé si esta sección deba llamarse Argumento o Justificación 
+
+\begin{nota}
+  \tcblower
+  Hace falta un buen texto para convencer al lector de que es importante el desarrollo de un programa con las siguientes características:
+
+  \begin{itemize}
+    \item gratis
+    \item código abierto
+    \item lenguaje moderno y amigable 
+  \end{itemize}
+
+  Y una interfaz con :
+
+  \begin{itemize}
+    \item conexión con el programa de análisis
+    \item UI moderna
+    \item tecnología 4.0 
+    \item trabajo colabrativo --> mejor en web
+    \item extandible a una plataforma BIM 
+  \end{itemize}
+
+  Hay que decir que obviamente los programas comerciales grandes tienen la parte de la interfaz y el trabajo colaborativo y todo eso, pero que son prohibitivos para la mayoría de ingenieros. No solo en paíces en desarrollo como Colombia sino en todo el mundo. Esto frena el desarrollo de la tecnología y la infraestructura de Colombia y el mundo.
+\end{nota}
 
 \section{Objetivo}
 
@@ -69,6 +117,36 @@ Con este trabajo se pretende contribuir al ejercicio libre de la profesión del 
 \end{itemize}
 
 \section{Metodología}
+
+{\color{red} 
+El capítulo de metodología debe ser una cosa diferente. Debe incluir más o menos lo siguiente: 
+
+\begin{itemize}
+  \item Esquema general del desarrollo del problema: explicar que se decidió separar el proceso de cálculo de la representación gráfica de la estructura en el pre- y pos-proceso. Por eso se pensó en desarrollar dos programas diferentes, específicamente desarrollados para cumplir propósitos específicos. Así, el programa de representación gráfica no incluye nada respecto al análisis matricial y, por su lado, el de análisis no incluye nada que tenga que ver con la visualización gráfica. Esto significa que es necesario pensar también en una manera de transferir la información, con la cual no se vea comprometida ninguna parte del proceso. La información se debe transferir sin limitaciones de lenguaje de programación ni tipo de datos.
+
+  \item Programa de análisis: 
+    \begin{itemize} 
+      \item Alcance del programa: lineal elástico, 3D, barras, ... 
+      \item Lenguaje de programación: hacer una tabla con lenguajes interpretados y no interpredatos, dinámicos y estáticos, etc. Luego decir por qué se escogió python.
+      \item Librerías: hacer una tabla con las librerías de python que se necesitan y poner al frente para qué sirve cada una. Comentar qué problemas traería si no se usan estas librerías y se intenta programas todo con python puro? Tiempo de cálculo? Programación complicada? no sé... 
+      \item Paradigma de programación: tabla o lista con los diferentes paradigmas y después explicar por qué se escogió un paradigma de programación orientada a objetos.
+    \end{itemize}
+
+  \item Programa de pre- y pos-proceso:
+    \begin{itemize}
+      \item Alcance del programa: tipo de visualizaciones necesarias, respondiendo al alcance del prorama de análisis. Por ejemplo, no es necesario en esta tesis tener capacidad de visualización dinámica porque tampoco el programa de análisis lo permite. Tipo de resultados que se pueden ver.
+      \item Plataformas de programación visual: Explicar que el programa de pre- y pos-proceso requiere dos partes fundamentalmente. La interfaz de usuario (UI) que contiene los botones y elementos con los que el usuario interactua, y por otro lado un espacio para dibujar o representar gráficamente el modelo estructural. Poner una lista de lenguajes comunes para la UI (c++, Qt, Java, JavaScript, etc.). Exponer una tabla con las librerías o plataformas para la otra parte que es la representación gráfica tridimensional del modelo (panda3d, Three.js, processing, etc). Explicar que se escogió Javascript por diferentes razones: la UI (Vue, React, Angular, etc) y la estructura en 3D (Three.js) se puede hacer con este lenguaje por lo que no hay que pensar en compatibilidad, evitar problemas de instalación en diferentes equipos y diferentes sistemas operativos, se pretende que el programa se ejecute desde un servidor para que a futuro se pueda trabajar colaborativamente.
+      \item Librerías adicionales: poner una lista de las librerías adicionales y poner para qué sirven.
+    \end{itemize}
+
+  \item Sistema de transferencia de datos o información:
+    \begin{itemize}
+      \item Lenguajes o metodologías más comunes para transferir datos: hacer una lista o tabla (json, xml, CSV, SPSS, txt, etc.) 
+      \item Ventajas de Json y por qué se escogió
+    \end{itemize}
+
+\end{itemize}
+}
 
 Se desarrollaron los programas de computador \emph{pyFEM} y \emph{FEM.js}. El primero para analizar estructuras aporticadas tridimensionales sometidas a cargas estáticas y el segundo para modelarlas. Esto con el fin que FEM.js pueda ser usado junto con otro programa de computador diferente a pyFEM.\\
 
